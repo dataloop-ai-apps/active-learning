@@ -1,10 +1,9 @@
 import dtlpy as dl
 import random
-import datetime
-import json
 import logging
 
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('DataSplit')
 
 
 class ServiceRunner(dl.BaseServiceRunner):
@@ -29,6 +28,12 @@ class ServiceRunner(dl.BaseServiceRunner):
         distribution = [int(group['distribution']) for group in groups]
         action = random.choices(population=population, weights=distribution)
         progress.update(action=action[0])
+        if action[0] == 'test':
+            annotations = item.annotations.list()
+            for annotation in annotations:
+                if 'model' in annotation.metadata.get('user', dict()):
+                    logger.info('removing model metadata from item annotations')
+                    annotation.metadata['user'].pop('model')
         add_item_metadata = context.node.metadata.get('customNodeConfig', {}).get('itemMetadata', False)
         if add_item_metadata:
             if 'system' not in item.metadata:

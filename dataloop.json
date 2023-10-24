@@ -203,17 +203,38 @@
     ],
     "services": [
       {
-        "name": "active-learning-nodes",
+        "name": "data-split-nodes",
         "panelNames": [
           "dataSplit"
         ],
+        "runtime": {
+          "podType": "regular-xs",
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/cpu/node14:latest",
+          "numReplicas": 1,
+          "concurrency": 10,
+          "singleAgent": false,
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 1,
+            "maxReplicas": 2,
+            "queueLength": 10
+          },
+          "preemptible": false
+        },
+        "executionTimeout": 172800,
+        "drainTime": 600,
+        "onReset": "failed",
+        "runExecutionAsProcess": false,
+        "maxAttempts": 3
+      },
+      {
+        "name": "data-split",
         "moduleName": "data_split",
         "runtime": {
           "podType": "regular-xs",
           "runnerImage": "gcr.io/viewo-g/piper/agent/runner/cpu/node14:latest",
           "numReplicas": 1,
           "concurrency": 10,
-          "pyPackages": {},
           "singleAgent": false,
           "autoscaler": {
             "type": "rabbitmq",
@@ -231,10 +252,32 @@
         "operation": null
       },
       {
-        "name": "create-new-model",
+        "name": "create-new-model-nodes",
         "panelNames": [
           "createNewModel"
         ],
+        "runtime": {
+          "podType": "regular-xs",
+          "runnerImage": "dataloopai/dtlpy-agent:cpu.py3.8.opencv4.7",
+          "numReplicas": 1,
+          "concurrency": 10,
+          "singleAgent": false,
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 1,
+            "maxReplicas": 2,
+            "queueLength": 10
+          },
+          "preemptible": false
+        },
+        "executionTimeout": 172800,
+        "drainTime": 600,
+        "onReset": "failed",
+        "runExecutionAsProcess": false,
+        "maxAttempts": 3
+      },
+      {
+        "name": "create-new-model",
         "moduleName": "create_new_model",
         "runtime": {
           "podType": "regular-xs",
@@ -259,17 +302,38 @@
         "operation": null
       },
       {
-        "name": "compare-models",
+        "name": "compare-models-nodes",
         "panelNames": [
           "compareModels"
         ],
+        "runtime": {
+          "podType": "regular-xs",
+          "runnerImage": "dataloopai/dtlpy-agent:cpu.py3.8.opencv4.7",
+          "numReplicas": 1,
+          "concurrency": 10,
+          "singleAgent": false,
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 1,
+            "maxReplicas": 2,
+            "queueLength": 10
+          },
+          "preemptible": false
+        },
+        "executionTimeout": 172800,
+        "drainTime": 600,
+        "onReset": "failed",
+        "runExecutionAsProcess": false,
+        "maxAttempts": 3
+      },
+      {
+        "name": "compare-models",
         "moduleName": "compare_models",
         "runtime": {
           "podType": "regular-xs",
           "runnerImage": "dataloopai/dtlpy-agent:cpu.py3.8.opencv4.7",
           "numReplicas": 1,
           "concurrency": 10,
-          "pyPackages": {},
           "singleAgent": false,
           "autoscaler": {
             "type": "rabbitmq",

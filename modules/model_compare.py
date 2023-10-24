@@ -3,12 +3,14 @@ import numpy as np
 import pandas as pd
 import logging
 from dtlpymetrics.models.image import get_model_scores_df
+from dtlpymetrics import precision_recall
+from sklearn.metrics import auc
 
 comparator = dl.AppModule(name='compare_models',
                           description='Compares two models in relation to a user-specified.'
                                       'metric and attaches a "win" or "lose" action filter.')
 
-logger = logging.getLogger('ModelAdapter')
+logger = logging.getLogger('ModelCompare')
 logger.setLevel(logging.INFO)
 
 
@@ -67,18 +69,12 @@ def compare_models(previous_model: dl.Model,
                                              new_model_metrics=metrics_to_df(new_model),
                                              configuration=compare_config)
     else:
-        current_eval_df = get_model_scores_df(dataset=dataset, model=previous_model)
-        new_eval_df = get_model_scores_df(dataset=dataset, model=new_model)
-
-        is_improved = compare_model_evaluation(current_model_metrics=current_eval_df,
-                                               new_model_metrics=new_eval_df,
-                                               configuration=compare_config)
-        # score_types=[ScoreType.ANNOTATION_IOU,
-        #              ScoreType.ANNOTATION_ATTRIBUTE,
-        #              ScoreType.ANNOTATION_LABEL])
-
+        get_eval_df(previous_model=previous_model,
+                    new_model=new_model,
+                    compare_config=compare_config,
+                    dataset=dataset)
+        is_improved = compare_model_evaluation(configuration=compare_config)
     winning_model = new_model if is_improved else previous_model
-    losing_model = previous_model if is_improved else new_model
 
     actions = ['update model', 'discard']
     if is_improved is True:
@@ -96,6 +92,42 @@ def compare_models(previous_model: dl.Model,
         winning_model = winning_model.update(True)
 
     return winning_model
+
+
+def get_eval_df(previous_model: dl.Model,
+                new_model: dl.Model,
+                compare_config: dict,
+                dataset: dl.Dataset = None):
+    checks = compare_config.get('checks', dict())
+    for metric_name, metric_config in checks.items():
+        if metric_name == 'precision_recall':
+            iou_threshold = metric_config.get('iou_threshold', 0.01)
+            current_eval_df = precision_recall.calc_precision_recall(dataset_id=dataset.id,
+                                                                     model_id=previous_model.id,
+                                                                     iou_threshold=iou_threshold,
+                                                                     method_type='every_point'
+                                                                     )
+
+            new_eval_df = precision_recall.calc_precision_recall(dataset_id=dataset.id,
+                                                                 model_id=new_model.id,
+                                                                 iou_threshold=iou_threshold,
+                                                                 method_type='every_point')
+            metric_config['current_model_metrics'] = current_eval_df
+            metric_config['new_model_metrics'] = new_eval_df
+        else:
+            raise NotImplementedError(f"Metric {metric_name} is not implemented.")
+    if len(checks) == 0:
+        current_model_metrics = get_model_scores_df(model=previous_model,
+                                                    dataset=dataset)
+        new_model_metrics = get_model_scores_df(model=new_model,
+                                                dataset=dataset)
+
+        common_ids = current_model_metrics.merge(new_model_metrics, on='item_id', how='inner')['item_id']
+        current_model_metrics = current_model_metrics[current_model_metrics['item_id'].isin(common_ids)]
+        new_model_metrics = new_model_metrics[new_model_metrics['item_id'].isin(common_ids)]
+        checks['annotation_score'] = {'current_model_metrics': current_model_metrics,
+                                      'new_model_metrics': new_model_metrics
+                                      }
 
 
 def compare_model_training(current_model_metrics: pd.DataFrame,
@@ -174,14 +206,10 @@ def check_check_if_winning(wins, new_model_wins):
     return is_winning
 
 
-def compare_model_evaluation(current_model_metrics: pd.DataFrame,
-                             new_model_metrics: pd.DataFrame,
-                             configuration: dict) -> bool:
+def compare_model_evaluation(configuration: dict) -> bool:
     """
     Compare two models based on their predictions on a dataset.
 
-    :param current_model_metrics: pd.DataFrame of scores for the current model predictions on a dataset
-    :param new_model_metrics:  pd.DataFrame of scores for the new model predictions on a dataset
     :param configuration: JSON indicating which variables are being compared
     :return: bool indicating if the new model is better
     """
@@ -199,23 +227,25 @@ def compare_model_evaluation(current_model_metrics: pd.DataFrame,
 
     # summarize scores by *item*
     # annotation scores are an average of all three: label, attribute, iou
-    item_scores_old = current_model_metrics.groupby(['item_id'])['annotation_score'].mean()
-    item_scores_new = new_model_metrics.groupby(['item_id'])['annotation_score'].mean()
-    new_model_wins = np.array(item_scores_new > item_scores_old)
+    if len(checks) == 0:
+        current_model_metrics = configuration.get('annotation_score').get('current_model_metrics')
+        new_model_metrics = configuration.get('annotation_score').get('new_model_metrics')
+        item_scores_old = current_model_metrics.groupby(['item_id'])['annotation_score'].mean()
+        item_scores_new = new_model_metrics.groupby(['item_id'])['annotation_score'].mean()
+        new_model_wins = np.array(item_scores_new > item_scores_old)
+        is_improved = check_check_if_winning(wins, new_model_wins)
+    else:
+        is_improved = compare2(configuration=configuration)
 
-    logger.warning(f"finished comparing, wins list: {new_model_wins}")
+    logger.warning(f"finished comparing, new model won : {is_improved}")
 
-    return check_check_if_winning(wins, new_model_wins)
+    return is_improved
 
 
-def compare2(previous_model_metrics: pd.DataFrame,
-             current_model_metrics: pd.DataFrame,
-             configuration: dict) -> bool:
+def compare2(configuration: dict) -> bool:
     """
     Using two result.csv files received model management metrics,
     find which of them is improves performance.
-    :param previous_model_metrics: dataframe of previous best model performance
-    :param current_model_metrics: dataframe of current model performance
     :param configuration: JSON indicating which variables are being compared
     :Keyword Arguments:
 
@@ -253,52 +283,46 @@ def compare2(previous_model_metrics: pd.DataFrame,
     :return: True if the comparison detected any improvement OR equalization, else - False.
     """
 
-    def _pad_to_match(_previous: pd.DataFrame, _current: pd.DataFrame) -> (pd.DataFrame, pd.DataFrame):
+    def _pad_to_match(_current: pd.DataFrame, _new: pd.DataFrame) -> (pd.DataFrame, pd.DataFrame):
         """
         Pad the shorter metric to match the longer one.
         :param _previous: previous model metrics
         :param _current: current model metrics
         :return: padded previous and current metrics
         """
-        len_diff = abs(len(_previous) - len(_current))
-        if len(_previous) > len(_current):
-            _current = pd.concat([_current, pd.Series([_current.iloc[-1]] * len_diff)])
+        len_diff = abs(len(_current) - len(_new))
+        if len(_current) > len(_new):
+            _new = pd.concat([_new, pd.DataFrame([_new.iloc[-1]] * len_diff)])
         else:
-            _previous = pd.concat([_previous, pd.Series([_previous.iloc[-1]] * len_diff)])
-        return _previous, _current
+            _current = pd.concat([_current, pd.DataFrame([_current.iloc[-1]] * len_diff)])
+        return _current, _new
 
-    def _compare(_previous: pd.DataFrame, _current: pd.DataFrame, **kwargs):
-        if len(_previous) != len(_current):
-            logging.warning("Compare non matching sizes, shorter metric will be padded to match.")
-            _previous, _current = _pad_to_match(_previous, _current)
-        assert len(_previous) == len(_current), "Cannot compare non matching sizes," \
-                                                " please check testing results file validity."
+    def _compare(_current: pd.DataFrame, _new: pd.DataFrame):
+        # Sort the precision and recall values together.
+        current_sorted_precision_recall = np.array(
+            [np.asarray(_current['precision']), np.asarray(_current['recall'])]).T
+        current_sorted_precision_recall = current_sorted_precision_recall[
+            current_sorted_precision_recall[:, 1].argsort()[::-1]]
 
-        delta = kwargs.get("min_delta", 0)
-        check = np.any if kwargs.get("soft_check", False) else np.all
-        sign = np.negative if kwargs.get("lower_is_better_metrics", False) else np.array
-        _diff = _current.values - _previous.values
+        # Calculate the AUC-PR.
+        current_auc_pr = auc(current_sorted_precision_recall[:, 1], current_sorted_precision_recall[:, 0])
+        logger.info(f"current model auc pr: {current_auc_pr}")
 
-        # precision:    previous        current
-        #               0.5             0.6         ->  0.1
-        #               0.4             0.4         ->  0.0
-        #               0.3             0.2         -> -0.1
+        # Sort the precision and recall values together.
+        new_sorted_precision_recall = np.array(
+            [np.asarray(_new['precision']), np.asarray(_new['recall'])]).T
+        new_sorted_precision_recall = new_sorted_precision_recall[
+            new_sorted_precision_recall[:, 1].argsort()[::-1]]
 
-        _comparison_result = check(sign(_diff) >= delta)
+        # Calculate the AUC-PR.
+        new_auc_pr = auc(new_sorted_precision_recall[:, 1], new_sorted_precision_recall[:, 0])
+        logger.info(f"new model auc pr: {new_auc_pr}")
 
-        return _comparison_result
+        if new_auc_pr > current_auc_pr:
+            return True
+        return False
 
-    def _verbose(_previous: np.ndarray, _current: np.ndarray, **kwargs):
-        print(f'[{idx}] performing comparison on {single_metric_name} metric between:')
-        comparison = pd.DataFrame({
-            "previous model": _previous,
-            "current model": _current
-        })
-        comparison.columns.name = "TH"
-        comparison = comparison.set_axis(axes)
-        print(comparison, end='\n\n')
-
-    def _filter(_previous_metric: pd.DataFrame, _current_metric: pd.DataFrame, **kwargs):
+    def _filter(_current_metric: pd.DataFrame, _new_metric: pd.DataFrame, **kwargs):
         """
         concatenate filtering over the dataFrames before performing metrics comparison
         :param _previous_metric: previous metric table
@@ -310,56 +334,57 @@ def compare2(previous_model_metrics: pd.DataFrame,
         def _range_query(table, col, rng):
             return table.loc[table[col].isin(rng)]
 
-        threshold = kwargs.get("iou_threshold", None)
+        # settings
+        # threshold = kwargs.get("iou_threshold", None)
         labels = kwargs.get("specific_label", None)
-        metric_name = kwargs.get("metric_name", None)
+        same_pre_model = kwargs.get("same_pre_model", False)
 
-        if kwargs.get("same_pre_model", False):
-            assert set(_previous_metric["premodel"]) == set(_current_metric["premodel"]), \
+        if same_pre_model is True:
+            assert set(_current_metric["premodel"]) == set(_new_metric["premodel"]), \
                 "non-matching pre-models detected"
 
-        if threshold:
-            # for [0.1, 0.5], numpy will return [0.1 ,..., 0.4]
-            _rv = np.arange(*threshold, 0.1) if type(threshold) is list else np.arange(threshold, 1, 0.1)
-            _rv = np.round(_rv.astype(np.float64), 1)
-            # extract rows matching the range value
-            _previous_metric = _range_query(
-                _previous_metric, _previous_metric.columns[0], _rv
-            )  # _p.loc['_p[_p.columns[0]].isin(_rv)]
-            _current_metric = _range_query(_current_metric, _current_metric.columns[0], _rv)
+        # TODO: Doesn't do anything, the metrics put the input iou here
+        # if threshold is not None:
+        #     # for [0.1, 0.5], numpy will return [0.1 ,..., 0.4]
+        #     _rv = np.arange(*threshold, 0.1) if type(threshold) is list else np.arange(threshold, 1, 0.1)
+        #     _rv = np.round(_rv.astype(np.float64), 1)
+        #     # extract rows matching the range value
+        #     _current_metric = _range_query(_current_metric, _current_metric.columns[0], _rv)
+        #     # _p.loc['_p[_p.columns[0]].isin(_rv)]
+        #     _new_metric = _range_query(_new_metric, _new_metric.columns[0], _rv)
 
-        if labels:  # TODO rename to be able to filter by dataset labels
-            _previous_metric = _range_query(_previous_metric, "label", labels)  # _p.loc[_p["label"].isin(labels)]
-            _current_metric = _range_query(_current_metric, "label", labels)
+        # TODO rename to be able to filter by dataset labels
+        # filters by a list of labels
+        if labels is not None:
+            _current_metric = _range_query(_current_metric, "label", labels)  # _p.loc[_p["label"].isin(labels)]
+            _new_metric = _range_query(_new_metric, "label", labels)
 
-        if metric_name:
-            _previous_metric = _previous_metric[_previous_metric["label"] == metric_name]
-            _current_metric = _current_metric[_current_metric["label"] == metric_name]
-
+        if metric_name is not None:
+            # filter by metric name
+            if metric_name == 'precision_recall':
+                min_precision = kwargs.get("min_precision", 0.1)
+                min_recall = kwargs.get("min_recall", 0.1)
+                _current_metric = _current_metric[_current_metric["precision"] >= min_precision]
+                _current_metric = _current_metric[_current_metric["recall"] >= min_recall]
+                _new_metric = _new_metric[_new_metric["precision"] >= min_precision]
+                _new_metric = _new_metric[_new_metric["recall"] >= min_recall]
+        else:
+            raise ValueError("metric name must be specified")
         # store X axes (to display -- F(threshold)=result -- function)
-        _axes = _previous_metric[_previous_metric.columns[0]].values
+        _axes = _current_metric[_current_metric.columns[0]].values
+        if len(_current_metric) == 0 or len(_new_metric) == 0:
+            raise ValueError("The filters provided in the configurations resulted in empty comparison tables, "
+                             "please use different threshold and metrics")
+        return _current_metric, _new_metric, _axes
 
-        return _previous_metric, _current_metric, _axes
+    config_checks = configuration.get("checks", dict())
+    result = False
+    for metric_name, metric_config in config_checks.items():
+        current_sheet = metric_config.get('current_model_metrics')
+        new_sheet = metric_config.get('new_model_metrics')
+        current_metric, new_metric, axes = _filter(current_sheet,
+                                                   new_sheet,
+                                                   **metric_config)
 
-    conclusions = []
-    previous_sheet = previous_model_metrics
-    current_sheet = current_model_metrics
-    opt_handlers: dict = {
-        "verbose": _verbose,
-    }
-
-    for idx, single_metric in enumerate(configuration.items(), start=1):
-        if type(single_metric[1]) is dict:
-            single_metric_name, config = single_metric
-            previous_metric, current_metric, axes = _filter(previous_sheet,
-                                                            current_sheet,
-                                                            **{"metric_name": single_metric_name, **config})
-
-            for key in config.keys():
-                if config.get(key, False):
-                    opt_handlers.get(key, lambda a, b: None)(previous_metric.values, current_metric.values)
-
-            result = _compare(previous_metric, current_metric, **config)
-            conclusions.append(result)
-
-    return np.array(conclusions).all()
+        result = _compare(current_metric, new_metric)
+    return result
