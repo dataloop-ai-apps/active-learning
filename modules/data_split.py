@@ -30,7 +30,7 @@ class ServiceRunner(dl.BaseServiceRunner):
         progress.update(action=action[0])
         if action[0] == 'test':
             annotations = item.annotations.list()
-            for annotation in annotations:
+            for annotation in annotations.all():
                 if 'model' in annotation.metadata.get('user', dict()):
                     logger.info('removing model metadata from item annotations')
                     annotation.metadata['user'].pop('model')
