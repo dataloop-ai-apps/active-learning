@@ -317,38 +317,9 @@ watch(component, () => {
                         >
                             <template #append> % </template>
                         </dl-input>
-                        <dl-button
-                            size="s"
-                            flat
-                            padding="0"
-                            :tooltip="
-                                !canDelete
-                                    ? 'There is a minimum limitation of two groups'
-                                    : 'Remove group'
-                            "
-                            icon="icon-dl-close"
-                            @click="onDelete(group.id)"
-                            :disabled="!canDelete && readonly"
-                        />
                     </dl-item-section>
                 </dl-list-item>
                 <dl-list-item padding="0">
-                    <dl-item-section>
-                        <dl-button
-                            :disabled="!canAddGroup || readonly"
-                            label="Add Group"
-                            icon="icon-dl-add"
-                            :tooltip="
-                                !canAddGroup
-                                    ? `You can add up to ${MAX_GROUP_NUMBER} groups`
-                                    : ''
-                            "
-                            flat
-                            padding="0"
-                            size="s"
-                            @click="onClick"
-                        />
-                    </dl-item-section>
                     <dl-item-section
                         style="
                             gap: 5px;

@@ -53,13 +53,14 @@ export interface Port {
 }
 
 const DEFAULT_VALUES = (): INodeConfig => ({
-    name: 'Data Split',
+    name: 'Model Data Split',
     groups: [
-        { id: v4(), name: 'group_1', distribution: 50 },
-        { id: v4(), name: 'group_2', distribution: 50 }
+        { id: v4(), name: 'Train', distribution: 60 },
+        { id: v4(), name: 'Validation', distribution: 20 },
+        { id: v4(), name: 'Test', distribution: 20 }
     ],
-    distributeEqually: true,
-    itemMetadata: false,
+    distributeEqually: false,
+    itemMetadata: true,
     validation: {
         valid: true,
         errors: []

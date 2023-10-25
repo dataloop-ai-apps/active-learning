@@ -9,7 +9,7 @@ import { NodeConfig, NodeDescriptor } from './models/PipelineNode'
 const component = ref<NodeDescriptor>(null)
 const theme = ref('light')
 const readonly = ref(false)
-const addItemMetadata = ref(false)
+const addItemMetadata = ref(true)
 
 
 onMounted(() => {
