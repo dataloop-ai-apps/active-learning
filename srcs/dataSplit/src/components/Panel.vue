@@ -275,7 +275,7 @@ watch(component, () => {
             <dl-list padding="0">
                 <dl-list-item padding="0" class="container">
                     <dl-item-section color="dl-color-medium" class="item"
-                        >Group Name</dl-item-section
+                        >Subset Name</dl-item-section
                     >
                     <dl-item-section color="dl-color-medium" class="item-2"
                         >Distribution</dl-item-section
