@@ -23,7 +23,7 @@ def create_new_model(base_model: dl.Model,
                      train_subset: dict,
                      validation_subset: dict,
                      model_configuration: dict,
-                     context: dl.Context) -> dl.Model:
+                     context: dl.Context):
     """
     Create a new model version from the input model
 
@@ -81,4 +81,4 @@ def create_new_model(base_model: dl.Model,
             i += 1
 
     logging.info(f'New model {new_model.name} created from {base_model.name}.')
-    return new_model
+    return new_model, base_model

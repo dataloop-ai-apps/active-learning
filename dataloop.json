@@ -2,7 +2,7 @@
   "displayName": "Active Learning App",
   "name": "active-learning-app",
   "scope": "project",
-  "version": "1.3.147",
+  "version": "1.3.148",
   "components": {
     "panels": [
       {
@@ -147,6 +147,10 @@
             "output": [
               {
                 "name": "new_model",
+                "type": "Model"
+              },
+              {
+                "name": "base_model",
                 "type": "Model"
               }
             ],
