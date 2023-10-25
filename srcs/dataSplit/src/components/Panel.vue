@@ -19,7 +19,6 @@ const readonly = toRef(props, 'readonly')
 const MAX_GROUP_NUMBER = 5
 const MIN_GROUP_NUMBER = 2
 const MAX_DISTRIBUTION = 100
-
 const nodeName = ref(NodeConfig.DefaultValues.name)
 const distributeEqually = ref(NodeConfig.DefaultValues.distributeEqually)
 const metadataKeySpecialCharError = ref(false)
@@ -109,6 +108,11 @@ const isDistributionWarning = computed(() => {
 const remaining = computed(() => {
     return toFloat(MAX_DISTRIBUTION - groupsSum.value)
 })
+
+const remainingAbs = computed(() => {
+    return Math.abs(remaining.value)
+})
+
 
 /** Validation of the distribution of a group */
 const validateDistribution = debounce((index: number) => {
@@ -257,11 +261,10 @@ watch(component, () => {
         />
         <div>
             <dl-typography size="12px" color="dl-color-darker"
-                >Groups & Distribution</dl-typography
+                >Subsets Distribution</dl-typography
             >
             <dl-typography color="dl-color-medium" style="margin-top: 6px" size="10px">
-                Create groups and manage the data distribution (%) between them.
-                At least 2 groups must be specified, and no more than 5 groups.
+                Refine the model data distribution into training, validation, and test subsets
             </dl-typography>
             <dl-checkbox
                 style="margin-top: 18px"
@@ -296,6 +299,7 @@ watch(component, () => {
                             error-message="Group name is required"
                             dense
                             :disabled="readonly"
+                            v-bind="{disabled:true}"
                             @input="validateGroupName($event, index)"
                             @change="validateGroupName($event, index)"
                         />
@@ -342,7 +346,7 @@ watch(component, () => {
                                 color="dl-color-negative"
                             >
                                 <dl-icon icon="icon-dl-error-filled" />
-                                {{ Math.abs(remaining) }}
+                                {{ remainingAbs }}
                                 Exceeding
                             </dl-typography>
                             <dl-typography v-else color="dl-color-lighter">
@@ -360,16 +364,15 @@ watch(component, () => {
                 Item Tags
                 <dl-icon icon="icon-dl-info" size="13px" />
                 <dl-tooltip>
-                    Add a tag to each item based on its assigned group during
-                    runtime. The tag will be added to the tag list of the item,
-                    under metadata.system.tags
+                    Add a tag to each item according to its assigned subset group. The tag will be added to a dictionary under item.metadata.system.tags in the following format: tags = {“subset name”: true} 
                 </dl-tooltip>
             </dl-typography>
             <dl-checkbox
                 style="margin-top: 10px"
                 v-model="addItemMetadata"
-                label="Tag items based on their assigned groups"
+                label="Tag items based on their assigned subset name"
                 :disabled="readonly"
+                v-bind="{disabled:true}"
             />
         </div>
     </div>
