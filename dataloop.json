@@ -1,8 +1,8 @@
 {
-  "displayName": "Active Learning Shadi",
-  "name": "active-learning-shadi",
+  "displayName": "Active Learning Shadi 2",
+  "name": "active-learning-shadi2",
   "scope": "project",
-  "version": "1.3.151",
+  "version": "1.3.152",
   "components": {
     "panels": [
       {
