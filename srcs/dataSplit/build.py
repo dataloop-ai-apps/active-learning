@@ -3,10 +3,11 @@ import json
 import os
  
 
-with open('./dataloop.json') as json_file:
-    data = json.load(json_file)
-    panel_name = data['components']['panels'][0]['name']
+# with open('./dataloop.json') as json_file:
+#     data = json.load(json_file)
+#     panel_name = data['components']['panels'][0]['name']
 
+panel_name = 'dataSplit'
 print(f'Copying dist to panels/{panel_name}')
 src_dir = 'dist'
 dest_dir = f'panels/{panel_name}'
