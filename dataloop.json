@@ -1,8 +1,8 @@
 {
-  "displayName": "Active Learning App",
-  "name": "active-learning-app",
+  "displayName": "Active Learning Shadi",
+  "name": "active-learning-shadi",
   "scope": "project",
-  "version": "1.3.154",
+  "version": "1.3.155",
   "components": {
     "panels": [
       {
@@ -50,7 +50,7 @@
         "panel": "dataSplit",
         "invoke": {
           "type": "function",
-          "namespace": "active-learning-nodes.data_split.data_split"
+          "namespace": "data-split.data_split.data_split"
         },
         "categories": [
           "models"
@@ -106,7 +106,7 @@
               }
             ],
             "displayIcon": "qa-sampling",
-            "displayName": "Data Split NEW"
+            "displayName": "Model Data Split"
           }
         ]
       },
