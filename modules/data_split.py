@@ -34,6 +34,7 @@ class ServiceRunner(dl.BaseServiceRunner):
                 if 'model' in annotation.metadata.get('user', dict()):
                     logger.info('removing model metadata from item annotations')
                     annotation.metadata['user'].pop('model')
+                    annotation.update()
         add_item_metadata = context.node.metadata.get('customNodeConfig', {}).get('itemMetadata', False)
         if add_item_metadata:
             if 'system' not in item.metadata:
