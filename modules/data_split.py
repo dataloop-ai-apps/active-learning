@@ -28,8 +28,8 @@ class ServiceRunner(dl.BaseServiceRunner):
         distribution = [int(group['distribution']) for group in groups]
         action = random.choices(population=population, weights=distribution)
         progress.update(action=action[0])
+        logger.info('*********************************')
         if action[0] == 'test':
-            logger.info('*********************************')
             annotations = item.annotations.list()
             for annotation in annotations:
                 if 'model' in annotation.metadata.get('user', dict()):
