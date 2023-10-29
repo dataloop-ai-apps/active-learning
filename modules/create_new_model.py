@@ -43,7 +43,7 @@ def create_new_model(base_model: dl.Model,
 
     node = context.node
     input_name = node.metadata['customNodeConfig']['modelName']
-
+    model = base_model
     # input_name = "{model.name}_{datetime.datetime.now().strftime('%Y_%m_%d-T%H_%M_%S')}"  # debug
     new_name = input_name
     while '{' in new_name:
