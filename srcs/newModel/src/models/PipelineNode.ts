@@ -48,7 +48,7 @@ export interface INodeConfigJSON {
 const DEFAULT_VALUES = (): INodeConfig => ({
     name: 'Create New Model',
     // modelName: { name: "{model.name}-{datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}" },
-    modelName: "{model.name}-{datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}",
+    modelName: "{model.name}-{datetime.datetime.now().strftime('%Y_%m_%d-T%H_%M_%S')}",
     modelParameters: {},
     dataQuery: {value: {query: "SELECT * FROM {model.name}"}},
     validation: {

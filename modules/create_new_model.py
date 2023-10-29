@@ -44,9 +44,7 @@ def create_new_model(base_model: dl.Model,
     node = context.node
     input_name = node.metadata['customNodeConfig']['modelName']
 
-    # TODO update when model naming format is decided
-    model = base_model
-    # input_name = "{model.name}_{datetime.datetime.now().strftime('%Y%m%d_%H%M')}"  # debug
+    # input_name = "{model.name}_{datetime.datetime.now().strftime('%Y_%m_%d-T%H_%M_%S')}"  # debug
     new_name = input_name
     while '{' in new_name:
         name_start, name_end = new_name.split('{', 1)
@@ -64,7 +62,8 @@ def create_new_model(base_model: dl.Model,
 
     # try creating model clone with the given name, if it fails, add a number to the end of the name and try again
     i = 1
-    while i != 0:
+    new_model = None
+    while new_model is None:
         try:
             new_model = base_model.clone(
                 model_name=new_name,
@@ -77,7 +76,7 @@ def create_new_model(base_model: dl.Model,
             )
             break
         except dl.exceptions.BadRequest:
-            new_name = f'{new_name}_{i}'
+            new_name = f'{new_name}_v{i}'
             i += 1
 
     logging.info(f'New model {new_model.name} created from {base_model.name}.')
