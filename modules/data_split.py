@@ -22,25 +22,29 @@ class ServiceRunner(dl.BaseServiceRunner):
         :return:
         """
 
-        node = context.node
-        groups = node.metadata['customNodeConfig']['groups']
-        population = [group['name'] for group in groups]
-        distribution = [int(group['distribution']) for group in groups]
-        action = random.choices(population=population, weights=distribution)
-        progress.update(action=action[0])
-        if action[0] == 'test':
-            annotations = item.annotations.list()
-            for annotation in annotations:
-                if 'model' in annotation.metadata.get('user', dict()):
-                    logger.info('removing model metadata from item annotations')
-                    annotation.metadata['user'].pop('model')
-                    annotation.update()
-        add_item_metadata = context.node.metadata.get('customNodeConfig', {}).get('itemMetadata', False)
-        if add_item_metadata:
-            if 'system' not in item.metadata:
-                item.metadata['system'] = {}
-            if 'tags' not in item.metadata['system']:
-                item.metadata['system']['tags'] = {}
-            item.metadata['system']['tags'][action[0]] = True
-            item = item.update(True)
+        if item.metadata.get('system', dict()).get('tags', None) is not None:
+            action = list(item.metadata.get('system', dict()).get('tags', dict()).keys())[0]
+            progress.update(action=action)
+        else:
+            node = context.node
+            groups = node.metadata['customNodeConfig']['groups']
+            population = [group['name'] for group in groups]
+            distribution = [int(group['distribution']) for group in groups]
+            action = random.choices(population=population, weights=distribution)
+            progress.update(action=action[0])
+            if action[0] == 'test':
+                annotations = item.annotations.list()
+                for annotation in annotations:
+                    if 'model' in annotation.metadata.get('user', dict()):
+                        logger.info('removing model metadata from item annotations')
+                        annotation.metadata['user'].pop('model')
+                        annotation.update()
+            add_item_metadata = context.node.metadata.get('customNodeConfig', {}).get('itemMetadata', False)
+            if add_item_metadata:
+                if 'system' not in item.metadata:
+                    item.metadata['system'] = {}
+                if 'tags' not in item.metadata['system']:
+                    item.metadata['system']['tags'] = {}
+                item.metadata['system']['tags'][action[0]] = True
+                item = item.update(True)
         return item
