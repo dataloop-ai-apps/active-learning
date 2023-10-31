@@ -32,13 +32,14 @@ class ServiceRunner(dl.BaseServiceRunner):
             distribution = [int(group['distribution']) for group in groups]
             action = random.choices(population=population, weights=distribution)
             progress.update(action=action[0])
-            if action[0] == 'test':
-                annotations = item.annotations.list()
-                for annotation in annotations:
-                    if 'model' in annotation.metadata.get('user', dict()):
-                        logger.info('removing model metadata from item annotations')
-                        annotation.metadata['user'].pop('model')
-                        annotation.update()
+            # once the item passes through tasks and data split node,
+            # the annotation metadata is cleared from the model info
+            annotations = item.annotations.list()
+            for annotation in annotations:
+                if 'model' in annotation.metadata.get('user', dict()):
+                    logger.info('removing model metadata from item annotations')
+                    _ = annotation.metadata['user'].pop('model')
+                    annotation.update()
             add_item_metadata = context.node.metadata.get('customNodeConfig', {}).get('itemMetadata', False)
             if add_item_metadata:
                 if 'system' not in item.metadata:

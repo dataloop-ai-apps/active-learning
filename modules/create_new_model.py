@@ -1,7 +1,5 @@
 import dtlpy as dl
-import json
 import logging
-import datetime
 
 logging.basicConfig(level=logging.INFO)
 
