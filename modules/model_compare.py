@@ -304,8 +304,8 @@ def _compare(configuration: dict) -> bool:
         logger.info(f"current model auc pr: {current_auc_pr}")
 
         # Sort the precision and recall values together.
-        new_precision_np = np.asarray(_current['precision'])
-        new_recall_np = np.asarray(_current['recall'])
+        new_precision_np = np.asarray(_new['precision'])
+        new_recall_np = np.asarray(_new['recall'])
         new_sorted_precision_recall = np.array([new_precision_np, new_recall_np]).T
         sorted_indices = new_sorted_precision_recall[:, 1].argsort()[::-1]
         new_sorted_precision_recall = new_sorted_precision_recall[sorted_indices]
