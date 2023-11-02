@@ -1,6 +1,6 @@
 {
-  "displayName": "Active Learning TH",
-  "name": "active-learning-th",
+  "displayName": "Active Learning",
+  "name": "active-learning",
   "scope": "project",
   "version": "1.3.167",
   "components": {

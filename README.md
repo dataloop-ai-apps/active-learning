@@ -28,17 +28,16 @@ helps improve learning process efficiency to achieve high accuracy with fewer la
    In python, use the following commands:
 
    ```python
-   dpk = dl.dpks.get(dpk_name='active-learning-1.3')
-   project.apps.install(dpk=dpk)
+    import dtlpy as dl
+    project = dl.projects.get(project_name='<project-name>')
+    dpk = dl.dpks.get(dpk_name='<dpk-name>')
+    project.apps.install(dpk=dpk.display_name)
    ```
 
 3. Go to “Pipelines” and “Create new pipeline”
-
 4. Select the “Active Learning” template
 5. Fill in the required inputs and outputs in each node
 6. Start pipeline
-
-To customize your pipeline, select the nodes from the
 
 ---
 
@@ -50,108 +49,87 @@ learning pipelines in production.
 
 Custom nodes installed include:
 
-- data splitting
-- create new models (for fine-tuning)
+- model data split
+- create new models
 - compare two models
 
 Each node is explained in detail below.
 
-
 ---
 
-## Data Split Node
+## Model Data Split Node
 
 <img src="assets/data_split.png">
 
-### Description
+The **Model Data Split** node is a data processing tool that empowers you to split your data into subsets at runtime. Use this node to segment your ground truth into train, validation and test sets, simplifying the process.
 
-The **Data Split** node allows users to split data into groups, split equally or by percentage. This node takes a stream
-of data and automatically assigns them to a data group based on user-defined groups and distribution. For example, if
-you wanted a 80-20 split for model training, you would create two groups with the names and distributions of “train”
+Simply specify the desired subsets distribution, and the Data Split node will seamlessly assign each item to its respective subset using a metadata tags.
 
-### App Usage in the Dataloop Platform
+#### App Usage in the Dataloop Platform
 
 To use the Data Split node in Pipelines, use the following steps:
 
 * Navigate to the Pipeline editor .
-* Drag and drop the Data Split node to the canvas.
-* Name each group and define the distribution (equal or custom).
+* Drag and drop the Model Data Split node to the canvas.
+* Define the distribution desired for each subset (equal or custom).
 * Connect the node to the next node.
-* Run the pipeline.
 
 ---
 
 ## Create New Model Node
 
-The **Create New Model** node takes an existing model and clones it with a defined dataset, training and validation
-subset, and model configurations. This node outputs a model that is prepared for training.
-The name of the new model entity is taken from the text box in the pipelines panel. If a model already exists with the
-same name, a number will be automatically added as a suffix.
+The **Create New Model** node generates a new model version by cloning an existing model, making it ready for fine-tuning.
 
-**Parameters**
+The node inputs can be provided using parameters (fixed values or dynamic variables) or through node connections.
+
+Upon execution, the node will generate the new model as output. For more information, see our Active Learning documentation.
+
+
+#### Parameters
 
 - `base_model` - the model to clone (dl.Model)
 - `dataset` - the dataset to train on (dl.Dataset)
-- `train_subset` - the DQL query for the subset of training items (JSON)
-- `validation_subset` - the DQL query for the subset of validation items (JSON)
-- `model_configuration` - the model configurations to use for training (JSON)
+- `train_subset` - the DQL query for the subset of training items ([JSON](pipeline_configs/train_subset_filter.json))
+- `validation_subset` - the DQL query for the subset of validation items ([JSON](pipeline_configs/validation_subset_filter.json))
+- `model_configuration` - the model configurations to use for training (JSON: Model Configuration from Model Management)
 
-**Outputs/returns**
+#### Outputs/returns
 
-- `new_model` - the new model entity created (dl.Model)
+- `new_model` - the new model entity created `dl.Model`
+- `base_model` - the base model entity used to clone existing model `dl.Model`
 
 ---
 
-## Compare Model Node
+## Compare Models Node
 
-The **Compare Models** node compares two models: a previously trained model, and the newly trained model. 
-Comparisons are highly customizable and can also be done via the Dataloop SDK model adapters.
+The **Compare Models** node undertakes a comparison between two trained model versions based on their evaluation (same test set) or the model metrics created during the train process.
 
-The default Dataloop compare model node can compare any two models that have either:
+The New model input undergoes testing, and if it proves superior, it will be sent as an output labelled 'Update model', signifying deployment readiness. Alternatively, it will be labelled 'Discard'. For more information, see our Active Learning documentation
 
-1) uploaded metrics to model management during model training, or
-2) been evaluated on a common test subset.
+#### Parameters
 
-To do the comparison, a `compare_config` JSON must be provided. The following keys are supported (with the indicated
-defaults):
+- `previous_model` - the previously trained model `dl.Model`
+- `new_model` - the newly trained model to compare with the previous `dl.Model`
+- `compare_config` - the configurations for the comparison ([JSON](pipeline_configs/compare_configurations.json))
+- `dataset` - the dataset the models were evaluated on `dl.Dataset`
 
-- `"wins"` - the metric to compare (string or float), i.e. `"any"`, `"all"`, or `"0.7"` to indicate 70% of the
-  individual sub-comparisons need to result in a win in order for the overall comparison to be a win
-- `"checks"` - a list of sub-comparisons to perform (list of dictionaries)
-- `"verbose"` - whether to print the results of each sub-comparison (boolean), i.e. `true` or `false`
+#### Compare configs:
 
-`"checks"` is where the user can list the specific metrics to be compared. The format of each check will depend on the
-metric type.
+The compare configurations a dictionary with 2 sub-dicts:
 
+- checks: includes sub-dicts the metrics that the models will be compared by, currently only `precision-recall` is supported.
+          need to define `iou_threshold` and `min_delta` for the metric comparison.
+- `"wins"` : the metric to compare (string or float), i.e. `"any"`, `"all"`, or `"0.7"` to indicate 70% of the
+  individual sub-comparisons need to result in a win in order for the overall comparison to be a win.
+  `wins` is used when comparing annotation scored.
 
-If comparing model training metrics as described in **1)** above, the following subkeys are supported:
-
-- `"type"` : the type of metric to compare (string), e.g. `"plot"`
-- `"legend"` : the type of metric, e.g. `"loss"`
-- `"figure"` : the title of the figure to compare, e.g. `"training loss"`
-- `"x-index"` : the x-axis index of the metric to compare, e.g. `-1` for the final epoch, if `x` is epoch
-- `"maximize"` : whether to maximize the metric (boolean), e.g. `false` for loss
-- `"min_delta"` : the minimum delta to consider a comparison win (float), e.g. `0.1`
+if no checks are provided, the comparison will be done by the model evaluation metrics, based on the annotation scores,
+based on the win configurations.
 
 
-If comparing model predictions as described in **2)** above, the following subkeys are supported:
+#### Outputs/returns
 
-- `"wins"` - the metric to compare (string or float), i.e. `"any"`, `"all"`, or `"0.7"` to indicate 70% of the
-  individual sub-comparisons need to result in a win in order for the overall comparison to be a win
-
-
-**Parameters**
-
-- `previous_model` - the previously trained model (dl.Model)
-- `new_model` - the newly trained model to compare with the previous (dl.Model)
-- `compare_config` - the configurations for the comparison (JSON)
-
-
-**Outputs/returns**
-
-- `winning_model` - the model that wins the comparison, with two "action" fields: `update_model` and `discard` (
-  dl.Model)
-
+- `winning_model` - `dl.Model` - the model that wins the comparison, with two "action" fields: `update_model` and `discard`
 ---
 
 ## Contributions, Bugs and Issues - How to Contribute

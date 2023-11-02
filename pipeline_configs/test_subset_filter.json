@@ -1,0 +1,25 @@
+{
+  "filter": {
+    "$and": [
+      {
+        "hidden": false
+      },
+      {
+        "$or": [
+          {
+            "metadata": {
+              "system": {
+                "tags": {
+                  "test": true
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "file"
+      }
+    ]
+  }
+}

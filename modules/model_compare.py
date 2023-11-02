@@ -96,20 +96,21 @@ def compare_models(previous_model: dl.Model,
 
 def get_eval_df(previous_model: dl.Model,
                 new_model: dl.Model,
-                compare_config: dict,
-                dataset: dl.Dataset = None):
+                dataset: dl.Dataset,
+                compare_config: dict
+               ):
     """
-
-    :param previous_model:
-    :param new_model:
-    :param compare_config:
-    :param dataset:
+    Get evaluation dataframe for each model based on the metrics specified in the compare_config.
+    :param previous_model: previous model
+    :param new_model: new model to compare against the original model
+    :param dataset: dataset that has the test subset the models are being evaluated on.
+    :param compare_config: JSON indicating which metrics are being compared, if empty compare annotation scores
     :return:
     """
     checks = compare_config.get('checks', dict())
     for metric_name, metric_config in checks.items():
         if metric_name == 'precision_recall':
-            iou_threshold = metric_config.get('iou_threshold', 0.01)
+            iou_threshold = metric_config.get('iou_threshold', 0)
             current_eval_df = precision_recall.calc_precision_recall(dataset_id=dataset.id,
                                                                      model_id=previous_model.id,
                                                                      iou_threshold=iou_threshold,
@@ -258,40 +259,27 @@ def _compare(configuration: dict) -> bool:
     :Keyword Arguments:
 
     ******* SPECIFIC METRIC *******
-
-    * *precision* (``bool``) --
-      compare models by *only* Precision metric [default: False]
-    * *recall* (``bool``) --
-      compare models by *only* Recall metric [default: False]
-    * *f1* (``bool``) --
-      compare models by *only* f1-measure metric [default: False]
-    * *mAP50* (``bool``) --
-      compare models by *only* mAP50 metric [default: False]
-    * *mAP50_95* (``bool``) --
-      compare models by *only* mAP50_95 metric [default: False]
-    note: if any metric was not chosen, the calculation takes *everything*
+    * *precision-recall* (``dict``) --
+      compare models by Precision-Recall metrics using AUC-PR
 
     ******* SETTINGS *******
-
-    * *soft_check* (``function``) --
-      require custom comparison function between two columns [default: Python's builtin *any*]
-    * *iou_threshold* (``list | float``) --
-      perform comparison based on specific (single/boundaries) IoU value [default: everything]
-    * *same_pre_model* (``bool``) --
-      require that both models were trained from the same source [default: false]
+    * *iou_threshold* (``float``) --
+      perform comparison based on specific (single/boundaries) IoU value [default: 0]
     * *specific_label* (``list``) --
       perform comparison based on specific label [default: everything]
     * *min_delta* (``float``) --
       require minimum difference between the metrics before considering it as improvement [default: 0]
-    * *lower_is_better_metrics* (``list``) --
-      specify list of metrics which require *decrease* to represent improvement [default: 0]
-    * *verbose* (``bool``) --
-      stdout tabular information in runtime  [default: False]
 
     :return: True if the comparison detected any improvement OR equalization, else - False.
     """
 
     def __compare(_current: pd.DataFrame, _new: pd.DataFrame):
+        """
+        Compare two models by Precision-Recall metrics using AUC-PR.
+        :param _current: current model metrics dataframe
+        :param _new: new model metrics dataframe
+        :return:
+        """
         # Sort the precision and recall values together.
         current_precision_np = np.asarray(_current['precision'])
         current_recall_np = np.asarray(_current['recall'])
@@ -314,13 +302,14 @@ def _compare(configuration: dict) -> bool:
         new_auc_pr = auc(new_sorted_precision_recall[:, 1], new_sorted_precision_recall[:, 0])
         logger.info(f"new model auc pr: {new_auc_pr}")
 
-        return new_auc_pr > current_auc_pr
+        difference_auc_pr = new_auc_pr - current_auc_pr
+        return difference_auc_pr > min_delta
 
     def _filter(_current_metric: pd.DataFrame, _new_metric: pd.DataFrame, **kwargs):
         """
         concatenate filtering over the dataFrames before performing metrics comparison
-        :param _previous_metric: previous metric table
         :param _current_metric: current metric table
+        :param _new_metric: new metric table
         :param kwargs: filter options
         :return: filtered tables
         """
@@ -347,6 +336,6 @@ def _compare(configuration: dict) -> bool:
         current_metric, new_metric = _filter(current_sheet,
                                              new_sheet,
                                              **metric_config)
-
+        min_delta = metric_config.get("min_delta", 0)
         result = __compare(current_metric, new_metric)
     return result

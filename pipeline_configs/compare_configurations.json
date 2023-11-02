@@ -1,0 +1,9 @@
+{
+  "wins": "any",
+  "checks": {
+    "precision_recall": {
+      "iou_threshold": 0.5,
+      "min_delta": 0
+    }
+  }
+}
