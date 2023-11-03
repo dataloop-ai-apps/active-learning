@@ -78,10 +78,8 @@ def compare_models(previous_model: dl.Model,
 
     actions = ['update model', 'discard']
     logger.info(f"Is new model better? {is_improved}")
-    print(f"Is new model better? {is_improved}")
     if is_improved is True:
         logger.info(f"Action {actions[0]}")
-        print(f"Action to update {actions[0]}")
         progress.update(action=actions[0])
     else:
         logger.info(f"Action to update {actions[1]}")
@@ -309,7 +307,9 @@ def _compare(configuration: dict) -> bool:
         print(f"new model auc pr: {new_auc_pr}")
 
         difference_auc_pr = new_auc_pr - current_auc_pr
-        return difference_auc_pr > min_delta
+        if difference_auc_pr > min_delta:
+            return True
+        return False
 
     def _filter(_current_metric: pd.DataFrame, _new_metric: pd.DataFrame, **kwargs):
         """
