@@ -77,9 +77,14 @@ def compare_models(previous_model: dl.Model,
     winning_model = new_model if is_improved else previous_model
 
     actions = ['update model', 'discard']
+    logger.info(f"Is new model better? {is_improved}")
+    print(f"Is new model better? {is_improved}")
     if is_improved is True:
+        logger.info(f"Action {actions[0]}")
+        print(f"Action to update {actions[0]}")
         progress.update(action=actions[0])
     else:
+        logger.info(f"Action to update {actions[1]}")
         progress.update(action=actions[1])
 
     add_item_metadata = context.node.metadata.get('customNodeConfig', {}).get('itemMetadata', False)
@@ -98,7 +103,7 @@ def get_eval_df(previous_model: dl.Model,
                 new_model: dl.Model,
                 dataset: dl.Dataset,
                 compare_config: dict
-               ):
+                ):
     """
     Get evaluation dataframe for each model based on the metrics specified in the compare_config.
     :param previous_model: previous model
@@ -177,7 +182,6 @@ def compare_model_training(current_model_metrics: pd.DataFrame,
             raise ValueError(f"Could not find figure {figure} and legend {legend} in current model metrics")
         # TODO check the number of returned values and warn if there is more than one
         current_value = current_y[current_x == current_x[x_index]][0]
-
         # now we filter the new model Dataframe by column values
         new_values = new_model_metrics.loc[(new_model_metrics['figure'] == figure) &
                                            (new_model_metrics['legend'] == legend)]
@@ -290,6 +294,7 @@ def _compare(configuration: dict) -> bool:
         # Calculate the AUC-PR.
         current_auc_pr = auc(current_sorted_precision_recall[:, 1], current_sorted_precision_recall[:, 0])
         logger.info(f"current model auc pr: {current_auc_pr}")
+        print(f"current model auc pr: {current_auc_pr}")
 
         # Sort the precision and recall values together.
         new_precision_np = np.asarray(_new['precision'])
@@ -301,6 +306,7 @@ def _compare(configuration: dict) -> bool:
         # Calculate the AUC-PR.
         new_auc_pr = auc(new_sorted_precision_recall[:, 1], new_sorted_precision_recall[:, 0])
         logger.info(f"new model auc pr: {new_auc_pr}")
+        print(f"new model auc pr: {new_auc_pr}")
 
         difference_auc_pr = new_auc_pr - current_auc_pr
         return difference_auc_pr > min_delta
