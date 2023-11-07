@@ -60,7 +60,7 @@ The tag will be added to a dictionary under `item.metadata.system.tags` in the f
 ```
 Filter items in the train subset, use the following DQL query:
 
-- [Train Subset](pipeline_configs/train_subset_filter.json) 
+- [Train Subset Filter](pipeline_configs/train_subset_filter.json) 
 
 ### App Usage in the Dataloop Platform
 
