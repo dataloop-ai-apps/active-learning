@@ -83,9 +83,6 @@
     "modules": [
       {
         "name": "data_split",
-        "versions": {
-          "dtlpy": "1.78.17"
-        },
         "entryPoint": "modules/data_split.py",
         "className": "ServiceRunner",
         "initInputs": [],
@@ -112,9 +109,6 @@
       },
       {
         "name": "create_new_model",
-        "versions": {
-          "dtlpy": "1.78.17"
-        },
         "entryPoint": "modules/create_new_model.py",
         "className": "model_creator",
         "initInputs": [],
@@ -161,9 +155,6 @@
       },
       {
         "name": "compare_models",
-        "versions": {
-          "dtlpy": "1.78.17"
-        },
         "entryPoint": "modules/model_compare.py",
         "className": "comparator",
         "initInputs": [],
