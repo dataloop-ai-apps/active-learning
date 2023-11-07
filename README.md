@@ -66,6 +66,8 @@ Filter items in the train subset, use the following DQL query:
 
 ## Create New Model Node
 
+<img src="assets/create_new_model.png">
+
 The **Create New Model** node generates a new model version by cloning an existing model, making it ready for
 fine-tuning.
 
@@ -90,6 +92,8 @@ documentation.
 ---
 
 ## Compare Models Node
+
+<img src="assets/model_compare.png">
 
 The **Compare Models** node undertakes a comparison between two trained model versions based on their evaluation (same
 test set) or the model metrics created during the train process.
