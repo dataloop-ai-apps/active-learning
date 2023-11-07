@@ -38,7 +38,7 @@ Each node is explained in detail below.
 
 ## Model Data Split Node
 
-<img src="assets/data_split.png">
+<img src="assets/data_split.png" width="400">
 
 The **Model Data Split** node is a data processing tool that empowers you to split your data into subsets at runtime.
 Use this node to segment your ground truth into train, validation and test sets, simplifying the process.
@@ -66,7 +66,7 @@ Filter items in the train subset, use the following DQL query:
 
 ## Create New Model Node
 
-<img src="assets/create_new_model.png">
+<img src="assets/create_new_model.png" width="400">
 
 The **Create New Model** node generates a new model version by cloning an existing model, making it ready for
 fine-tuning.
@@ -93,7 +93,7 @@ documentation.
 
 ## Compare Models Node
 
-<img src="assets/model_compare.png">
+<img src="assets/model_compare.png" width="400">
 
 The **Compare Models** node undertakes a comparison between two trained model versions based on their evaluation (same
 test set) or the model metrics created during the train process.
