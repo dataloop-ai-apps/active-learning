@@ -62,15 +62,6 @@ Filter items in the train subset, use the following DQL query:
 
 - [Train Subset Filter](pipeline_configs/train_subset_filter.json) 
 
-### App Usage in the Dataloop Platform
-
-To use the Data Split node in Pipelines, use the following steps:
-
-* Navigate to the Pipeline editor .
-* Drag and drop the Model Data Split node to the canvas.
-* Define the distribution desired for each subset (equal or custom).
-* Connect the node to the next node.
-
 ---
 
 ## Create New Model Node
