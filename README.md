@@ -115,11 +115,6 @@ Learning documentation
 
 [Compare config example](pipeline_configs/compare_configurations.json)
 
-#### Checks (Object)
-
-The `checks` section allows you to define specific metrics and criteria for comparison. It is used when you need to
-evaluate and compare datasets based on performance metrics. Below are the key components of the `checks` section:
-
 - **`precision_recall` (object)**: This subfield focuses on precision-recall metrics,
     the `precision_recall` comparison is based on the AUC-PR (Area Under the Curve - Precision-Recall) calculation, using the following criteria:
     - **`iou_threshold` (float)**: The Intersection over Union (IoU) threshold, which measures how much two sets of data
@@ -128,25 +123,12 @@ evaluate and compare datasets based on performance metrics. Below are the key co
 
     - **`min_delta` (float)**: The minimum difference allowed between precision-recall values. If the difference is
       less than this value, it may not be considered a significant change in performance.
+    
 
-Please note that, as of the current version, only precision-recall metrics are supported in the `checks` section.
+Please note that, as of the current version, only precision-recall metrics are supported in the section, Additional metric support may be added in future updates.
 
-Additional metric support may be added in future updates.
-
-#### Wins (String or Float)
-
-The `wins` field specifies the criteria for determining when one set of data `wins` over another. It can be one of the
-following options:
-
-- A floating-point number between 0 and 1: This number represents a threshold (e.g., 0.7), indicating that 70% of the
-  individual sub-comparisons need to result in a win in order for the overall comparison to be considered a win.
-
-- A string of `any`: This indicates that any improvement in the performance metrics will be considered a win.
-
-- A string of `all`: This means that all specified performance checks need to be met for it to be considered a win.
-
-The `wins` field is used when no other specific metrics **(checks)** (e.g., precision-recall) are provided, and the
-comparison is conducted solely based on annotation scores.
+- If any other metrics are provided, they will be ignored.
+- If precision recall is not provided, the default values will be used as shown in the [example](pipeline_configs/compare_configurations.json).
 
 ### Outputs/returns
 

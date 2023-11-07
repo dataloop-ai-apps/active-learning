@@ -39,64 +39,6 @@ def metrics_to_df(model: dl.Model) -> pd.DataFrame:
     return samples
 
 
-@comparator.add_function(display_name="Compare Models")
-def compare_models(previous_model: dl.Model,
-                   new_model: dl.Model,
-                   compare_config: dict,
-                   progress: dl.Progress,
-                   context: dl.Context,
-                   dataset: dl.Dataset = None,
-                   ) -> dl.Model:
-    """
-    Compare metrics of two models to determine which is better.
-
-    :param previous_model: previous model
-    :param new_model: new model to compare against the original model
-    :param compare_config: JSON indicating which variables are being compared
-    :param dataset: optional dataset entity to be able to compare based on model evaluation in a previous node
-    :param progress: event progress necessary for updated the "action" filter of subset assignment
-    :param context: context of the function
-    :return:
-    """
-    logger.info(f"Compare configuration: {compare_config}")
-
-    if compare_config is None:
-        compare_config = {}
-    # TODO add comparison based on evaluation from previous nose
-    if dataset is None:
-        # compare by model training
-        is_improved = compare_model_training(current_model_metrics=metrics_to_df(previous_model),
-                                             new_model_metrics=metrics_to_df(new_model),
-                                             configuration=compare_config)
-    else:
-        get_eval_df(previous_model=previous_model,
-                    new_model=new_model,
-                    compare_config=compare_config,
-                    dataset=dataset)
-        is_improved = compare_model_evaluation(configuration=compare_config)
-    winning_model = new_model if is_improved else previous_model
-
-    actions = ['update model', 'discard']
-    logger.info(f"Is new model better? {is_improved}")
-    if is_improved is True:
-        logger.info(f"Action {actions[0]}")
-        progress.update(action=actions[0])
-    else:
-        logger.info(f"Action to update {actions[1]}")
-        progress.update(action=actions[1])
-
-    add_item_metadata = context.node.metadata.get('customNodeConfig', {}).get('itemMetadata', False)
-    if add_item_metadata:
-        if 'system' not in winning_model.metadata:
-            winning_model.metadata['system'] = {}
-        if 'tags' not in winning_model.metadata['system']:
-            winning_model.metadata['system']['tags'] = {}
-        winning_model.metadata['system']['tags'][actions[0]] = True
-        winning_model = winning_model.update(True)
-
-    return winning_model
-
-
 def get_eval_df(previous_model: dl.Model,
                 new_model: dl.Model,
                 dataset: dl.Dataset,
@@ -110,43 +52,46 @@ def get_eval_df(previous_model: dl.Model,
     :param compare_config: JSON indicating which metrics are being compared, if empty compare annotation scores
     :return:
     """
-    checks = compare_config.get('checks', dict())
-    for metric_name, metric_config in checks.items():
+    if 'precision_recall' not in compare_config:
+        logger.warning(f"Precision recall not specified in compare_config. Using default values.")
+        compare_config['precision_recall'] = {'iou_threshold': 0.5, 'min_delta': 0}
+
+    for metric_name, metric_config in compare_config.items():
         if metric_name == 'precision_recall':
-            iou_threshold = metric_config.get('iou_threshold', 0)
-            current_eval_df = precision_recall.calc_precision_recall(dataset_id=dataset.id,
-                                                                     model_id=previous_model.id,
-                                                                     iou_threshold=iou_threshold,
-                                                                     method_type='every_point'
-                                                                     )
+            iou_threshold = metric_config.get('iou_threshold', 0.5)
+            current_pr_df = precision_recall.calc_precision_recall(dataset_id=dataset.id,
+                                                                   model_id=previous_model.id,
+                                                                   iou_threshold=iou_threshold,
+                                                                   method_type='every_point')
 
-            new_eval_df = precision_recall.calc_precision_recall(dataset_id=dataset.id,
-                                                                 model_id=new_model.id,
-                                                                 iou_threshold=iou_threshold,
-                                                                 method_type='every_point')
-            metric_config['current_model_metrics'] = current_eval_df
-            metric_config['new_model_metrics'] = new_eval_df
+            new_pr_df = precision_recall.calc_precision_recall(dataset_id=dataset.id,
+                                                               model_id=new_model.id,
+                                                               iou_threshold=iou_threshold,
+                                                               method_type='every_point')
+            metric_config['current_model_metrics'] = current_pr_df
+            metric_config['new_model_metrics'] = new_pr_df
+        # elif metric_name == 'annotation_scores':
+        #     current_model_metrics = get_model_scores_df(model=previous_model,
+        #                                                 dataset=dataset)
+        #
+        #     new_model_metrics = get_model_scores_df(model=new_model,
+        #                                             dataset=dataset)
+        #
+        #     common_ids = current_model_metrics.merge(new_model_metrics, on='item_id', how='inner')['item_id']
+        #     current_model_metrics = current_model_metrics[current_model_metrics['item_id'].isin(common_ids)]
+        #     new_model_metrics = new_model_metrics[new_model_metrics['item_id'].isin(common_ids)]
+        #     metric_config['current_model_metrics'] = current_model_metrics
+        #     metric_config['new_model_metrics'] = new_model_metrics
         else:
-            raise NotImplementedError(f"Metric {metric_name} is not implemented, use precision_recall instead.")
-    if len(checks) == 0:
-        current_model_metrics = get_model_scores_df(model=previous_model,
-                                                    dataset=dataset)
-        new_model_metrics = get_model_scores_df(model=new_model,
-                                                dataset=dataset)
-
-        common_ids = current_model_metrics.merge(new_model_metrics, on='item_id', how='inner')['item_id']
-        current_model_metrics = current_model_metrics[current_model_metrics['item_id'].isin(common_ids)]
-        new_model_metrics = new_model_metrics[new_model_metrics['item_id'].isin(common_ids)]
-        checks['annotation_score'] = {'current_model_metrics': current_model_metrics,
-                                      'new_model_metrics': new_model_metrics
-                                      }
+            logger.warning(
+                NotImplementedError(f"Metric {metric_name} is not implemented, use precision_recall instead."))
+            continue
 
 
 def compare_model_training(current_model_metrics: pd.DataFrame,
                            new_model_metrics: pd.DataFrame,
                            configuration: dict) -> bool:
     """
-
     :param current_model_metrics:
     :param new_model_metrics:
     :param configuration:
@@ -205,6 +150,66 @@ def compare_model_training(current_model_metrics: pd.DataFrame,
     return check_check_if_winning(wins, new_model_wins)
 
 
+@comparator.add_function(display_name="Compare Models")
+def compare_models(previous_model: dl.Model,
+                   new_model: dl.Model,
+                   progress: dl.Progress,
+                   context: dl.Context,
+                   compare_config: dict = None,
+                   dataset: dl.Dataset = None,
+                   ) -> dl.Model:
+    """
+    Compare metrics of two models to determine which is better.
+
+    :param previous_model: previous model
+    :param new_model: new model to compare against the original model
+    :param compare_config: JSON indicating which variables are being compared
+    :param dataset: optional dataset entity to be able to compare based on model evaluation in a previous node
+    :param progress: event progress necessary for updated the "action" filter of subset assignment
+    :param context: context of the function
+    :return:
+    """
+    logger.info(f"Compare configuration: {compare_config}")
+
+    if compare_config is None:
+        logger.warning("No metrics were specified in the compare_config, Will use precision-recall by default.")
+        compare_config = {'precision_recall': {'iou_threshold': 0.5, 'min_delta': 0}}
+
+    # TODO add comparison based on evaluation from previous nose
+    if dataset is None:
+        # compare by model training
+        is_improved = compare_model_training(current_model_metrics=metrics_to_df(previous_model),
+                                             new_model_metrics=metrics_to_df(new_model),
+                                             configuration=compare_config)
+    else:
+        get_eval_df(previous_model=previous_model,
+                    new_model=new_model,
+                    compare_config=compare_config,
+                    dataset=dataset)
+        is_improved = compare_model_evaluation(configuration=compare_config)
+    winning_model = new_model if is_improved else previous_model
+
+    actions = ['update model', 'discard']
+    logger.info(f"Is new model better? {is_improved}")
+    if is_improved is True:
+        logger.info(f"Action {actions[0]}")
+        progress.update(action=actions[0])
+    else:
+        logger.info(f"Action to update {actions[1]}")
+        progress.update(action=actions[1])
+
+    # add_item_metadata = context.node.metadata.get('customNodeConfig', {}).get('itemMetadata', False)
+    # if add_item_metadata:
+    #     if 'system' not in winning_model.metadata:
+    #         winning_model.metadata['system'] = {}
+    #     if 'tags' not in winning_model.metadata['system']:
+    #         winning_model.metadata['system']['tags'] = {}
+    #     winning_model.metadata['system']['tags'][actions[0]] = True
+    #     winning_model = winning_model.update(True)
+
+    return winning_model
+
+
 def check_check_if_winning(wins, new_model_wins):
     if wins == 'all':
         is_winning = True if all(new_model_wins) else False
@@ -217,6 +222,26 @@ def check_check_if_winning(wins, new_model_wins):
     return is_winning
 
 
+def _compare_annotation_scores(_current: pd.DataFrame, _new: pd.DataFrame, **kwargs):
+    wins = kwargs.get('annotation_scores', dict()).get('win_ratio', 0)
+    if isinstance(wins, float) is False:
+        raise ValueError(f"wins should be a float, got {wins} of type {type(wins)}")
+
+    item_scores_old = _current.groupby(['item_id'])['annotation_score'].mean()
+    item_scores_new = _new.groupby(['item_id'])['annotation_score'].mean()
+    new_model_wins = np.array(item_scores_new > item_scores_old)
+
+    if wins == 1:
+        is_winning = True if all(new_model_wins) else False
+    elif wins == 0:
+        is_winning = True if any(new_model_wins) else False
+    else:
+        sum_model_wins = sum(new_model_wins)
+        all_model_wins = len(new_model_wins) if not len(new_model_wins) == 0 else 1
+        is_winning = True if (sum_model_wins / all_model_wins) > wins else False
+    kwargs['new_model_won'] = is_winning
+
+
 def compare_model_evaluation(configuration: dict) -> bool:
     """
     Compare two models based on their predictions on a dataset.
@@ -224,29 +249,9 @@ def compare_model_evaluation(configuration: dict) -> bool:
     :param configuration: JSON indicating which variables are being compared
     :return: bool indicating if the new model is better
     """
-
-    # compare model scores for each *item*
-    # each item's scores needs to calculated by dtlpymetrics
-    # then we need to compare the scores for each item
-    # decide on a winner according to any/all/percentage of items
-
-    wins = configuration.get('wins', None)
-    if wins is None:
-        logger.warning("No wins specified in configuration. Using 'any' as default.")
-        wins = 'any'
-    checks = configuration.get('checks', [])
-
     # summarize scores by *item*
     # annotation scores are an average of all three: label, attribute, iou
-    if len(checks) == 0:
-        current_model_metrics = configuration.get('annotation_score').get('current_model_metrics')
-        new_model_metrics = configuration.get('annotation_score').get('new_model_metrics')
-        item_scores_old = current_model_metrics.groupby(['item_id'])['annotation_score'].mean()
-        item_scores_new = new_model_metrics.groupby(['item_id'])['annotation_score'].mean()
-        new_model_wins = np.array(item_scores_new > item_scores_old)
-        is_improved = check_check_if_winning(wins, new_model_wins)
-    else:
-        is_improved = _compare(configuration=configuration)
+    is_improved = _compare(configuration=configuration)
 
     logger.warning(f"finished comparing, new model won : {is_improved}")
 
@@ -275,13 +280,16 @@ def _compare(configuration: dict) -> bool:
     :return: True if the comparison detected any improvement OR equalization, else - False.
     """
 
-    def __compare(_current: pd.DataFrame, _new: pd.DataFrame):
+    def _compare_auc_pr(_current: pd.DataFrame, _new: pd.DataFrame, **kwargs):
         """
         Compare two models by Precision-Recall metrics using AUC-PR.
         :param _current: current model metrics dataframe
         :param _new: new model metrics dataframe
         :return:
         """
+        new_model_won = False
+        min_delta = kwargs.get("min_delta", 0)
+
         # Sort the precision and recall values together.
         current_precision_np = np.asarray(_current['precision'])
         current_recall_np = np.asarray(_current['recall'])
@@ -308,8 +316,10 @@ def _compare(configuration: dict) -> bool:
 
         difference_auc_pr = new_auc_pr - current_auc_pr
         if difference_auc_pr > min_delta:
-            return True
-        return False
+            new_model_won = True
+
+        kwargs['new_model_won'] = new_model_won
+        return new_model_won
 
     def _filter(_current_metric: pd.DataFrame, _new_metric: pd.DataFrame, **kwargs):
         """
@@ -329,19 +339,25 @@ def _compare(configuration: dict) -> bool:
         # TODO rename to be able to filter by dataset labels
         # filters by a list of labels
         if labels is not None:
-            _current_metric = _range_query(_current_metric, "label", labels)  # _p.loc[_p["label"].isin(labels)]
+            _current_metric = _range_query(_current_metric, "label", labels)
             _new_metric = _range_query(_new_metric, "label", labels)
 
         return _current_metric, _new_metric
 
-    config_checks = configuration.get("checks", dict())
+    compare_funcs = {
+        'precision_recall': _compare_auc_pr,
+        'annotation_scores': _compare_annotation_scores
+    }
     result = False
-    for metric_name, metric_config in config_checks.items():
+    for metric_name, metric_config in configuration.items():
+        if not metric_name == 'precision_recall':
+            continue
+        compare_func = compare_funcs.get(metric_name, None)
         current_sheet = metric_config.get('current_model_metrics')
         new_sheet = metric_config.get('new_model_metrics')
         current_metric, new_metric = _filter(current_sheet,
                                              new_sheet,
                                              **metric_config)
-        min_delta = metric_config.get("min_delta", 0)
-        result = __compare(current_metric, new_metric)
+
+        result = compare_func(current_metric, new_metric, **metric_config)
     return result
