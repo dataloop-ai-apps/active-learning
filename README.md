@@ -106,7 +106,7 @@ Learning documentation
 
 - `previous_model` - the previously trained model `dl.Model`
 - `new_model` - the newly trained model to compare with the previous `dl.Model`
-- `compare_config` - the configurations for the comparison `Json` [See Example](#compare-configs)
+- `compare_config` - the configurations for the comparison `Json` [Read more](#compare-configs)
 
 - `dataset` - the dataset the models were evaluated on `dl.Dataset`
 
@@ -141,4 +141,4 @@ Please note that, as of the current version, only precision-recall metrics are s
 ## Contributions, Bugs and Issues - How to Contribute
 
 We welcome anyone to help us improve this app.  
-[Here's](CONTRIBUTING.md) a detailed instructions to help you open a bug or ask for a feature request
+[Here's](CONTRIBUTING.md) a detailed instructions to help you open a bug or ask for a feature request.
