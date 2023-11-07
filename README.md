@@ -100,7 +100,7 @@ test set) or the model metrics created during the train process.
 
 The New model input undergoes testing, and if it proves superior, it will be sent as an output labelled `update model`,
 signifying deployment readiness. Alternatively, it will be labelled `Discard`. For more information, see our Active
-Learning documentation
+Learning documentation.
 
 ### Parameters
 
