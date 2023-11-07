@@ -198,14 +198,14 @@ def compare_models(previous_model: dl.Model,
         logger.info(f"Action to update {actions[1]}")
         progress.update(action=actions[1])
 
-    # add_item_metadata = context.node.metadata.get('customNodeConfig', {}).get('itemMetadata', False)
-    # if add_item_metadata:
-    #     if 'system' not in winning_model.metadata:
-    #         winning_model.metadata['system'] = {}
-    #     if 'tags' not in winning_model.metadata['system']:
-    #         winning_model.metadata['system']['tags'] = {}
-    #     winning_model.metadata['system']['tags'][actions[0]] = True
-    #     winning_model = winning_model.update(True)
+    add_item_metadata = context.node.metadata.get('customNodeConfig', {}).get('itemMetadata', False)
+    if add_item_metadata:
+        if 'system' not in winning_model.metadata:
+            winning_model.metadata['system'] = {}
+        if 'tags' not in winning_model.metadata['system']:
+            winning_model.metadata['system']['tags'] = {}
+        winning_model.metadata['system']['tags'][actions[0]] = True
+        winning_model = winning_model.update(True)
 
     return winning_model
 
