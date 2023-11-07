@@ -48,15 +48,19 @@ respective subset using metadata tags.
 
 The tag will be added to a dictionary under `item.metadata.system.tags` in the following format:
 
+**Item metadata in train Subset Example**
 ```json
 {
   "system": {
     "tags": {
-      "subset_name": true
+      "train": true
     }
   }
 } 
 ```
+Filter items in the train subset, use the following DQL query:
+
+- [Train Subset](pipeline_configs/train_subset_filter.json) 
 
 ### App Usage in the Dataloop Platform
 
@@ -81,12 +85,11 @@ documentation.
 
 ### Parameters
 
-- `base_model` - the model to clone (dl.Model)
-- `dataset` - the dataset to train on (dl.Dataset)
-- `train_subset` - the DQL query for the subset of training items ([JSON](pipeline_configs/train_subset_filter.json))
-- `validation_subset` - the DQL query for the subset of validation
-  items ([JSON](pipeline_configs/validation_subset_filter.json))
-- `model_configuration` - the model configurations to use for training (JSON: Model Configuration from Model Management)
+- `base_model` - the model to clone `dl.Model`
+- `dataset` - the dataset to train on `dl.Dataset`
+- `train_subset` - the DQL query for the subset of training items `Json` [Example](pipeline_configs/train_subset_filter.json)
+- `validation_subset` - the DQL query for the subset of validation items `Json` [Example](pipeline_configs/validation_subset_filter.json)
+- `model_configuration` - the model configurations to use for training `Json`: Model Configuration from Model Management
 
 ### Outputs/returns
 
@@ -108,18 +111,20 @@ Learning documentation
 
 - `previous_model` - the previously trained model `dl.Model`
 - `new_model` - the newly trained model to compare with the previous `dl.Model`
-- `compare_config` - the configurations for the comparison ([JSON](pipeline_configs/compare_configurations.json))
+- `compare_config` - the configurations for the comparison `Json` [See Example](#compare-configs)
+
 - `dataset` - the dataset the models were evaluated on `dl.Dataset`
 
-### Compare configs:
+<a id="compare-configs"></a>
+#### compare_configs:
 
-[Compare config example](pipeline_configs/compare_configurations.json)
+- Config Example: [Compare config example](pipeline_configs/compare_configurations.json)
 
 - **`precision_recall` (object)**: This subfield focuses on precision-recall metrics,
-    the `precision_recall` comparison is based on the AUC-PR (Area Under the Curve - Precision-Recall) calculation, using the following criteria:
+    the precision_recall comparison is based on the AUC-PR (Area Under the Curve - Precision-Recall) calculation, using the following criteria:
     - **`iou_threshold` (float)**: The Intersection over Union (IoU) threshold, which measures how much two sets of data
       overlap. It is used to determine if a detected object matches a ground truth object. In the example above, it is
-      set to `0.5`, meaning that any overlap exceeding 50% is considered a match.
+      set to **0.5**, meaning that any overlap exceeding 50% is considered a match.
 
     - **`min_delta` (float)**: The minimum difference allowed between precision-recall values. If the difference is
       less than this value, it may not be considered a significant change in performance.
@@ -128,7 +133,7 @@ Learning documentation
 Please note that, as of the current version, only precision-recall metrics are supported in the section, Additional metric support may be added in future updates.
 
 - If any other metrics are provided, they will be ignored.
-- If precision recall is not provided, the default values will be used as shown in the [example](pipeline_configs/compare_configurations.json).
+- If precision recall is not provided, the default values will be used as shown in the [Example](pipeline_configs/compare_configurations.json).
 
 ### Outputs/returns
 
