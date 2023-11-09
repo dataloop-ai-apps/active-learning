@@ -1,12 +1,9 @@
 import subprocess
-import argparse
 import requests
 import shutil
 import json
 import os
 import dtlpy as dl
-
-PANEL_NAME = 'lidar-studio'
 
 
 def bump(bump_type):
