@@ -123,7 +123,6 @@ if __name__ == "__main__":
     # if args.publish is True:
     #     build()
     #     publish_and_install(project_id=args.project)
-    dl.setenv('rc')
     build()
     bump(bump_type='patch')
-    publish_and_install(project_id='139aa8f2-2877-410b-b56f-96e66c9a472d')
+    publish_and_install(project_id='')

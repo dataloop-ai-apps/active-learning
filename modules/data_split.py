@@ -23,6 +23,7 @@ class ServiceRunner(dl.BaseServiceRunner):
         """
 
         if item.metadata.get('system', dict()).get('tags', None) is not None:
+            # If subset already exists, use the same subset name as action.
             action = list(item.metadata.get('system', dict()).get('tags', dict()).keys())[0]
             progress.update(action=action)
         else:

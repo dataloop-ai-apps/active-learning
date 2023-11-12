@@ -2,9 +2,9 @@ import dtlpy as dl
 import numpy as np
 import pandas as pd
 import logging
-from dtlpymetrics.models.image import get_model_scores_df
 from dtlpymetrics import precision_recall
 from sklearn.metrics import auc
+import json
 
 comparator = dl.AppModule(name='compare_models',
                           description='Compares two models in relation to a user-specified.'
@@ -52,9 +52,6 @@ def get_eval_df(previous_model: dl.Model,
     :param compare_config: JSON indicating which metrics are being compared, if empty compare annotation scores
     :return:
     """
-    if 'precision_recall' not in compare_config:
-        logger.warning(f"Precision recall not specified in compare_config. Using default values.")
-        compare_config['precision_recall'] = {'iou_threshold': 0.5, 'min_delta': 0}
 
     for metric_name, metric_config in compare_config.items():
         if metric_name == 'precision_recall':
@@ -70,18 +67,6 @@ def get_eval_df(previous_model: dl.Model,
                                                                method_type='every_point')
             metric_config['current_model_metrics'] = current_pr_df
             metric_config['new_model_metrics'] = new_pr_df
-        # elif metric_name == 'annotation_scores':
-        #     current_model_metrics = get_model_scores_df(model=previous_model,
-        #                                                 dataset=dataset)
-        #
-        #     new_model_metrics = get_model_scores_df(model=new_model,
-        #                                             dataset=dataset)
-        #
-        #     common_ids = current_model_metrics.merge(new_model_metrics, on='item_id', how='inner')['item_id']
-        #     current_model_metrics = current_model_metrics[current_model_metrics['item_id'].isin(common_ids)]
-        #     new_model_metrics = new_model_metrics[new_model_metrics['item_id'].isin(common_ids)]
-        #     metric_config['current_model_metrics'] = current_model_metrics
-        #     metric_config['new_model_metrics'] = new_model_metrics
         else:
             logger.warning(
                 NotImplementedError(f"Metric {metric_name} is not implemented, use precision_recall instead."))
@@ -171,11 +156,19 @@ def compare_models(previous_model: dl.Model,
     """
     logger.info(f"Compare configuration: {compare_config}")
 
+    # loading default compare_config
+    default_compare_config_path = r'../pipeline_configs/compare_configurations.json'
+    with open(default_compare_config_path, 'r') as f:
+        default_compare_config = json.load(f)
+
     if compare_config is None:
         logger.warning("No metrics were specified in the compare_config, Will use precision-recall by default.")
-        compare_config = {'precision_recall': {'iou_threshold': 0.5, 'min_delta': 0}}
+        compare_config = default_compare_config
 
-    # TODO add comparison based on evaluation from previous nose
+    if 'precision_recall' not in compare_config:
+        logger.warning(f"Precision recall not specified in compare_config. Using default values.")
+        compare_config['precision_recall'] = default_compare_config.get('precision_recall', dict())
+
     if dataset is None:
         # compare by model training
         is_improved = compare_model_training(current_model_metrics=metrics_to_df(previous_model),
@@ -271,7 +264,7 @@ def _compare(configuration: dict) -> bool:
 
     ******* SETTINGS *******
     * *iou_threshold* (``float``) --
-      perform comparison based on specific (single/boundaries) IoU value [default: 0]
+      perform comparison based on specific (single/boundaries) IoU value [default: 0.5]
     * *specific_label* (``list``) --
       perform comparison based on specific label [default: everything]
     * *min_delta* (``float``) --
