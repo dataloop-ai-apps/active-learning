@@ -244,7 +244,7 @@
         "onReset": "failed",
         "runExecutionAsProcess": false,
         "maxAttempts": 3,
-        "operation": null
+        "operation": "none"
       },
       {
         "name": "create-new-model-nodes",
@@ -294,7 +294,7 @@
         "onReset": "failed",
         "runExecutionAsProcess": false,
         "maxAttempts": 3,
-        "operation": null
+        "operation": "none"
       },
       {
         "name": "compare-models-nodes",
@@ -343,7 +343,7 @@
         "onReset": "failed",
         "runExecutionAsProcess": false,
         "maxAttempts": 3,
-        "operation": null
+        "operation": "none"
       }
     ]
   }
