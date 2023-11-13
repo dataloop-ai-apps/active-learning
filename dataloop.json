@@ -1,8 +1,13 @@
 {
   "displayName": "Active Learning",
   "name": "active-learning",
-  "scope": "project",
+  "scope": "system",
   "version": "1.4.0",
+  "codebase": {
+    "type": "git",
+    "gitUrl": "https://github.com/dataloop-ai-apps/scoring-and-metrics.git",
+    "gitTag": "main"
+  },
   "components": {
     "panels": [
       {
