@@ -4,6 +4,7 @@ import shutil
 import json
 import os
 import dtlpy as dl
+import argparse
 
 
 def bump(bump_type):
@@ -106,23 +107,21 @@ def publish_and_install(project_id):
 
 
 if __name__ == "__main__":
-    # parser = argparse.ArgumentParser(description='Build, Bump, Publish and Install')
-    # parser.add_argument('--tag', action='store_true', help='Create a version git tag')
-    # parser.add_argument('--publish', action='store_true', help='Publish DPK and install app')
-    #
-    # parser.add_argument('--project', help='Project to publish and install to')
-    # parser.add_argument('--bump-type', default='patch', help='Bump version type: "patch"/"prerelease"/"minor"/"major"')
-    # args = parser.parse_args()
-    #
-    # if args.tag is True:
-    #     # run build also here to check it works before creating the git tag
-    #     build()
-    #     # bump and push the new tag
-    #     bump(bump_type=args.bump_type)
-    #
-    # if args.publish is True:
-    #     build()
-    #     publish_and_install(project_id=args.project)
-    build()
-    bump(bump_type='patch')
-    publish_and_install(project_id='')
+    parser = argparse.ArgumentParser(description='Build, Bump, Publish and Install')
+    parser.add_argument('--tag', action='store_true', help='Create a version git tag')
+    parser.add_argument('--publish', action='store_true', help='Publish DPK and install app')
+
+    parser.add_argument('--project', help='Project to publish and install to')
+    parser.add_argument('--bump-type', default='patch', help='Bump version type: "patch"/"prerelease"/"minor"/"major"')
+    args = parser.parse_args()
+
+    if args.tag is True:
+        # run build also here to check it works before creating the git tag
+        build()
+        # bump and push the new tag
+        bump(bump_type=args.bump_type)
+
+    if args.publish is True:
+        build()
+        publish_and_install(project_id=args.project)
+
