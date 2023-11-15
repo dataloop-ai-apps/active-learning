@@ -1,0 +1,355 @@
+{
+  "displayName": "Active Learning",
+  "name": "active-learning",
+  "scope": "system",
+  "version": "v1.4.0",
+  "codebase": {
+    "type": "git",
+    "gitUrl": "https://github.com/dataloop-ai-apps/active-learning.git",
+    "gitTag": "v1.4.0"
+  },
+  "components": {
+    "panels": [
+      {
+        "name": "dataSplit",
+        "icon": "icon-dl-qa-sampling",
+        "supportedSlots": [
+          {
+            "type": "pipelineNodeConfig",
+            "configuration": {}
+          }
+        ],
+        "conditions": {
+          "resources": []
+        }
+      },
+      {
+        "name": "createNewModel",
+        "icon": "icon-dl-models",
+        "supportedSlots": [
+          {
+            "type": "pipelineNodeConfig",
+            "configuration": {}
+          }
+        ],
+        "conditions": {
+          "resources": []
+        }
+      },
+      {
+        "name": "compareModels",
+        "icon": "icon-dl-compare",
+        "supportedSlots": [
+          {
+            "type": "pipelineNodeConfig",
+            "configuration": {}
+          }
+        ],
+        "conditions": {
+          "resources": []
+        }
+      }
+    ],
+    "pipelineNodes": [
+      {
+        "panel": "dataSplit",
+        "invoke": {
+          "type": "function",
+          "namespace": "data-split.data_split.data_split"
+        },
+        "categories": [
+          "models"
+        ],
+        "scope": "project"
+      },
+      {
+        "panel": "createNewModel",
+        "invoke": {
+          "type": "function",
+          "namespace": "create-new-model.create_new_model.create_new_model"
+        },
+        "categories": [
+          "models"
+        ],
+        "scope": "project"
+      },
+      {
+        "panel": "compareModels",
+        "invoke": {
+          "type": "function",
+          "namespace": "compare-models.compare_models.compare_models"
+        },
+        "categories": [
+          "models"
+        ],
+        "scope": "project"
+      }
+    ],
+    "modules": [
+      {
+        "name": "data_split",
+        "entryPoint": "modules/data_split.py",
+        "className": "ServiceRunner",
+        "initInputs": [],
+        "functions": [
+          {
+            "name": "data_split",
+            "description": "The 'Model Data Split' node is a data processing tool that empowers you to split your data into subsets at runtime. Use this node to segment your ground truth into train, validation and test sets, simplifying the process.\n \n Simply specify the desired subsets distribution, and the Data Split node will seamlessly assign each item to its respective subset using a metadata tags.",
+            "input": [
+              {
+                "type": "Item",
+                "name": "item"
+              }
+            ],
+            "output": [
+              {
+                "type": "Item",
+                "name": "item"
+              }
+            ],
+            "displayIcon": "qa-sampling",
+            "displayName": "Model Data Split"
+          }
+        ]
+      },
+      {
+        "name": "create_new_model",
+        "entryPoint": "modules/create_new_model.py",
+        "className": "model_creator",
+        "initInputs": [],
+        "functions": [
+          {
+            "name": "create_new_model",
+            "description": "The Create New Model node generates a new model version by cloning an existing model, making it ready for fine-tuning.\n \n The node requires the following inputs: Base model to clone (train/deployed models only), Model Configurations (JSON), Dataset and Subsets (DQL filters) for train and validation.\n The node inputs can be provided using parameters (fixed values or dynamic variables) or through node connections.\n \n Upon execution, the node will generate the new model as output. For more information, see our Active Learning documentation.",
+            "input": [
+              {
+                "name": "base_model",
+                "type": "Model"
+              },
+              {
+                "name": "dataset",
+                "type": "Dataset"
+              },
+              {
+                "name": "train_subset",
+                "type": "Json"
+              },
+              {
+                "name": "validation_subset",
+                "type": "Json"
+              },
+              {
+                "name": "model_configuration",
+                "type": "Json"
+              }
+            ],
+            "output": [
+              {
+                "name": "new_model",
+                "type": "Model"
+              },
+              {
+                "name": "base_model",
+                "type": "Model"
+              }
+            ],
+            "displayIcon": "models",
+            "displayName": "Create New Model"
+          }
+        ]
+      },
+      {
+        "name": "compare_models",
+        "entryPoint": "modules/model_compare.py",
+        "className": "comparator",
+        "initInputs": [],
+        "functions": [
+          {
+            "name": "compare_models",
+            "description": "The 'Compare Models' node undertakes a comparison between two trained model versions based on their evaluation (same test set) or the model metrics created during the train process.\n \n The node requires the following mandatory inputs: Compare configuration (JSON), and two models for comparison: Previous and New.\n The New model input undergoes testing, and if it proves superior, it will be sent as an output labelled 'Update model', signifying deployment readiness. Alternatively, it will be labelled 'Discard'. For more information, see our Active Learning documentation.",
+            "input": [
+              {
+                "name": "previous_model",
+                "type": "Model"
+              },
+              {
+                "name": "new_model",
+                "type": "Model"
+              },
+              {
+                "name": "compare_config",
+                "type": "Json"
+              },
+              {
+                "name": "dataset",
+                "type": "Dataset"
+              }
+            ],
+            "output": [
+              {
+                "name": "winning_model",
+                "type": "Model",
+                "actions": [
+                  "update model",
+                  "discard"
+                ]
+              }
+            ],
+            "displayIcon": "compare",
+            "displayName": "Compare Models"
+          }
+        ]
+      }
+    ],
+    "services": [
+      {
+        "name": "data-split-nodes",
+        "panelNames": [
+          "dataSplit"
+        ],
+        "runtime": {
+          "podType": "regular-xs",
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/cpu/node14:latest",
+          "numReplicas": 1,
+          "concurrency": 10,
+          "singleAgent": false,
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 1,
+            "maxReplicas": 2,
+            "queueLength": 10
+          },
+          "preemptible": false
+        },
+        "executionTimeout": 172800,
+        "drainTime": 600,
+        "onReset": "failed",
+        "runExecutionAsProcess": false,
+        "maxAttempts": 3
+      },
+      {
+        "name": "data-split",
+        "moduleName": "data_split",
+        "runtime": {
+          "podType": "regular-xs",
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/cpu/node14:latest",
+          "numReplicas": 1,
+          "concurrency": 10,
+          "singleAgent": false,
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 1,
+            "maxReplicas": 2,
+            "queueLength": 10
+          },
+          "preemptible": false
+        },
+        "executionTimeout": 172800,
+        "drainTime": 600,
+        "onReset": "failed",
+        "runExecutionAsProcess": false,
+        "maxAttempts": 3,
+        "operation": "none"
+      },
+      {
+        "name": "create-new-model-nodes",
+        "panelNames": [
+          "createNewModel"
+        ],
+        "runtime": {
+          "podType": "regular-xs",
+          "runnerImage": "dataloopai/dtlpy-agent:cpu.py3.8.opencv4.7",
+          "numReplicas": 1,
+          "concurrency": 10,
+          "singleAgent": false,
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 1,
+            "maxReplicas": 2,
+            "queueLength": 10
+          },
+          "preemptible": false
+        },
+        "executionTimeout": 172800,
+        "drainTime": 600,
+        "onReset": "failed",
+        "runExecutionAsProcess": false,
+        "maxAttempts": 3
+      },
+      {
+        "name": "create-new-model",
+        "moduleName": "create_new_model",
+        "runtime": {
+          "podType": "regular-xs",
+          "runnerImage": "dataloopai/dtlpy-agent:cpu.py3.8.opencv4.7",
+          "numReplicas": 1,
+          "concurrency": 10,
+          "pyPackages": {},
+          "singleAgent": false,
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 1,
+            "maxReplicas": 2,
+            "queueLength": 10
+          },
+          "preemptible": false
+        },
+        "executionTimeout": 172800,
+        "drainTime": 600,
+        "onReset": "failed",
+        "runExecutionAsProcess": false,
+        "maxAttempts": 3,
+        "operation": "none"
+      },
+      {
+        "name": "compare-models-nodes",
+        "panelNames": [
+          "compareModels"
+        ],
+        "runtime": {
+          "podType": "regular-xs",
+          "runnerImage": "dataloopai/dtlpy-agent:cpu.py3.8.opencv4.7",
+          "numReplicas": 1,
+          "concurrency": 10,
+          "singleAgent": false,
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 1,
+            "maxReplicas": 2,
+            "queueLength": 10
+          },
+          "preemptible": false
+        },
+        "executionTimeout": 172800,
+        "drainTime": 600,
+        "onReset": "failed",
+        "runExecutionAsProcess": false,
+        "maxAttempts": 3
+      },
+      {
+        "name": "compare-models",
+        "moduleName": "compare_models",
+        "runtime": {
+          "podType": "regular-xs",
+          "runnerImage": "dataloopai/dtlpy-agent:cpu.py3.8.opencv4.7",
+          "numReplicas": 1,
+          "concurrency": 10,
+          "singleAgent": false,
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 1,
+            "maxReplicas": 2,
+            "queueLength": 10
+          },
+          "preemptible": false
+        },
+        "executionTimeout": 172800,
+        "drainTime": 600,
+        "onReset": "failed",
+        "runExecutionAsProcess": false,
+        "maxAttempts": 3,
+        "operation": "none"
+      }
+    ]
+  }
+}
