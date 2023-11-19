@@ -107,24 +107,20 @@ def publish_and_install(project_id):
 
 
 if __name__ == "__main__":
-    # parser = argparse.ArgumentParser(description='Build, Bump, Publish and Install')
-    # parser.add_argument('--tag', action='store_true', help='Create a version git tag')
-    # parser.add_argument('--publish', action='store_true', help='Publish DPK and install app')
-    #
-    # parser.add_argument('--project', help='Project to publish and install to')
-    # parser.add_argument('--bump-type', default='patch', help='Bump version type: "patch"/"prerelease"/"minor"/"major"')
-    # args = parser.parse_args()
-    #
-    # if args.tag is True:
-    #     # run build also here to check it works before creating the git tag
-    #     build()
-    #     # bump and push the new tag
-    #     bump(bump_type=args.bump_type)
-    #
-    # if args.publish is True:
-    #     build()
-    #     publish_and_install(project_id=args.project)
+    parser = argparse.ArgumentParser(description='Build, Bump, Publish and Install')
+    parser.add_argument('--tag', action='store_true', help='Create a version git tag')
+    parser.add_argument('--publish', action='store_true', help='Publish DPK and install app')
 
-    dl.setenv('rc')
-    build()
-    publish_and_install(project_id='f8a4b8ce-5ff3-4386-84dc-1bda3a5bc92a')
+    parser.add_argument('--project', help='Project to publish and install to')
+    parser.add_argument('--bump-type', default='patch', help='Bump version type: "patch"/"prerelease"/"minor"/"major"')
+    args = parser.parse_args()
+
+    if args.tag is True:
+        # run build also here to check it works before creating the git tag
+        build()
+        # bump and push the new tag
+        bump(bump_type=args.bump_type)
+
+    if args.publish is True:
+        build()
+        publish_and_install(project_id=args.project)
