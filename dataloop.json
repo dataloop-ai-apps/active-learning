@@ -2,11 +2,11 @@
   "displayName": "Active Learning",
   "name": "active-learning",
   "scope": "system",
-  "version": "v1.4.0",
+  "version": "v0.0.0",
   "codebase": {
     "type": "git",
     "gitUrl": "https://github.com/dataloop-ai-apps/active-learning.git",
-    "gitTag": "v1.4.0"
+    "gitTag": "v0.0.0"
   },
   "components": {
     "panels": [
@@ -55,7 +55,7 @@
         "panel": "dataSplit",
         "invoke": {
           "type": "function",
-          "namespace": "data-split.data_split.data_split"
+          "namespace": "model-data-split.model_data_split.data_split"
         },
         "categories": [
           "models"
@@ -87,7 +87,7 @@
     ],
     "modules": [
       {
-        "name": "data_split",
+        "name": "model_data_split",
         "entryPoint": "modules/data_split.py",
         "className": "ServiceRunner",
         "initInputs": [],
@@ -206,7 +206,7 @@
     ],
     "services": [
       {
-        "name": "data-split-nodes",
+        "name": "model-data-split-nodes",
         "panelNames": [
           "dataSplit"
         ],
@@ -231,8 +231,8 @@
         "maxAttempts": 3
       },
       {
-        "name": "data-split",
-        "moduleName": "data_split",
+        "name": "model-data-split",
+        "moduleName": "model_data_split",
         "runtime": {
           "podType": "regular-xs",
           "runnerImage": "gcr.io/viewo-g/piper/agent/runner/cpu/node14:latest",

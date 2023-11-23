@@ -158,7 +158,7 @@ def compare_models(previous_model: dl.Model,
     logger.info(f"Compare configuration: {compare_config}")
 
     # loading default compare_config
-    default_compare_config_path = os.path.join(os.path.abspath('..'), 'pipeline_configs', 'compare_configurations.json')
+    default_compare_config_path = os.path.join('pipeline_configs', 'compare_configurations.json')
     with open(default_compare_config_path, 'r') as f:
         default_compare_config = json.load(f)
 
