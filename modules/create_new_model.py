@@ -38,6 +38,10 @@ def create_new_model(base_model: dl.Model,
     print(f"train subset: {train_subset}")
     print(f"validation subset: {validation_subset}")
     print(f"model config: {model_configuration}")
+    _model_configuration = base_model.configuration
+    if isinstance(model_configuration, dict) and len(model_configuration) > 0:
+        for config_name, config_val in model_configuration.items():
+            _model_configuration[config_name] = config_val
 
     logging.info(f'Creating new model from {base_model.name}.')
 
@@ -55,8 +59,6 @@ def create_new_model(base_model: dl.Model,
     new_dataset = dataset if dataset else base_model.dataset
     new_project = new_dataset.project
 
-    new_configuration = model_configuration if model_configuration else base_model.configuration
-
     train_filter = dl.Filters(custom_filter=train_subset)
     validation_filter = dl.Filters(custom_filter=validation_subset)
 
@@ -69,7 +71,7 @@ def create_new_model(base_model: dl.Model,
                 model_name=new_name,
                 project_id=new_project.id,
                 dataset=new_dataset,
-                configuration=new_configuration,
+                configuration=_model_configuration,
                 train_filter=train_filter,
                 validation_filter=validation_filter,
                 status='created'
