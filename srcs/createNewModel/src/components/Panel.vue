@@ -77,14 +77,6 @@ const debouncedUpdate = debounce(async () => {
     })
     try {
         component.value.metadata.customNodeConfig = nodeConfig
-        component.value.outputs = nodeConfig.ports.map((element) => {
-            return {
-                portId: element.id,
-                name: element.name,
-                nodeId: component.value.id,
-                type: element.type
-            }
-        })
         await window.dl.agent.sendEvent({
             name: DlFrameEvent.UPDATE_NODE_CONFIG,
             payload: component.value
