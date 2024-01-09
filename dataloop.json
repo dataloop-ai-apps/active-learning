@@ -1,7 +1,7 @@
 {
   "displayName": "Active Learning",
   "name": "active-learning",
-  "scope": "system",
+  "scope": "public",
   "version": "v0.0.18",
   "codebase": {
     "type": "git",
@@ -60,7 +60,7 @@
         "categories": [
           "models"
         ],
-        "scope": "project"
+        "scope": "node"
       },
       {
         "panel": "createNewModel",
@@ -71,7 +71,7 @@
         "categories": [
           "models"
         ],
-        "scope": "project"
+        "scope": "node"
       },
       {
         "panel": "compareModels",
@@ -82,7 +82,7 @@
         "categories": [
           "models"
         ],
-        "scope": "project"
+        "scope": "node"
       }
     ],
     "modules": [
