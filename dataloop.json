@@ -52,6 +52,7 @@
     ],
     "pipelineNodes": [
       {
+        "name": "dataSplit",
         "panel": "dataSplit",
         "invoke": {
           "type": "function",
@@ -63,6 +64,7 @@
         "scope": "node"
       },
       {
+        "name": "createNewModel",
         "panel": "createNewModel",
         "invoke": {
           "type": "function",
@@ -74,6 +76,7 @@
         "scope": "node"
       },
       {
+        "name": "compareModels",
         "panel": "compareModels",
         "invoke": {
           "type": "function",
