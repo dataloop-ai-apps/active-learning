@@ -19,7 +19,6 @@ export interface INodeConfig {
     modelName: string,
     dataQuery?: DataQuery,
     validation: ValidationDescriptor
-    ports?: Port[],
     modelParameters: Object
 }
 /**
@@ -32,7 +31,6 @@ export interface INodeConfig {
  * @property {string} body.modelName - An array of groups associated with the node configuration.
  * @property {DataQuery} [body.dataQuery] - The metadata associated with the node configuration.
  * @property {ValidationDescriptor} validation - The validation descriptor for the node configuration.
- * @property {Port[]} [ports] - An array of ports associated with the node configuration.
  */
 export interface INodeConfigJSON {
     name: string
@@ -41,7 +39,6 @@ export interface INodeConfigJSON {
         dataQuery?: DataQuery
     }
     validation: ValidationDescriptor
-    ports?: Port[]
 }
 
 
@@ -166,13 +163,6 @@ export class NodeConfig implements INodeConfig {
         return DEFAULT_VALUES()
     }
 
-    public get ports(): Port[] {
-        return [{
-            id: v4(),
-            name: 'model',
-            type: 'Model',
-        }]
-    }
 
     public static fromJSON(json: Partial<NodeConfig>): INodeConfig {
         return {
@@ -188,7 +178,6 @@ export class NodeConfig implements INodeConfig {
             name: this.name,
             modelName: this?.modelName,
             validation: this.validation,
-            ports: this.ports,
             modelParameters: this.modelParameters
         }
     }
