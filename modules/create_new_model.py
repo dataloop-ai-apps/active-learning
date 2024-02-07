@@ -60,15 +60,12 @@ def create_new_model(base_model: dl.Model,
     new_project = new_dataset.project
 
     # get the train and validation subsets from the base model if they are not given
-    subsets = base_model.metadata.get("system", dict()).get("subsets", None)
-    if len(train_subset) == 0 and subsets is not None:
-        train_subset_dql = subsets.get("train", None)
-        train_subset = dl.Filters(custom_filter=train_subset_dql)
-    if len(validation_subset) == 0 and subsets is not None:
-        validation_subset_dql = subsets.get("validation", None)
-        validation_subset = dl.Filters(custom_filter=validation_subset_dql)
     train_filter = dl.Filters(custom_filter=train_subset)
     validation_filter = dl.Filters(custom_filter=validation_subset)
+    if len(train_subset) == 0:
+        train_filter = None
+    if len(validation_subset) == 0:
+        validation_filter = None
 
     # try creating model clone with the given name, if it fails, add a number to the end of the name and try again
     i = 1
@@ -82,7 +79,7 @@ def create_new_model(base_model: dl.Model,
                 configuration=_model_configuration,
                 train_filter=train_filter,
                 validation_filter=validation_filter,
-                status='pre-trained'
+                status='created'
             )
             break
         except dl.exceptions.BadRequest:
