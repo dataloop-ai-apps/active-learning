@@ -2,11 +2,11 @@
   "displayName": "Active Learning",
   "name": "active-learning",
   "scope": "public",
-  "version": "v0.0.21",
+  "version": "v0.0.22",
   "codebase": {
     "type": "git",
     "gitUrl": "https://github.com/dataloop-ai-apps/active-learning.git",
-    "gitTag": "v0.0.21"
+    "gitTag": "v0.0.22"
   },
   "components": {
     "panels": [
