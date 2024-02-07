@@ -59,6 +59,14 @@ def create_new_model(base_model: dl.Model,
     new_dataset = dataset if dataset else base_model.dataset
     new_project = new_dataset.project
 
+    # get the train and validation subsets from the base model if they are not given
+    subsets = base_model.metadata.get("system", dict()).get("subsets", None)
+    if len(train_subset) == 0 and subsets is not None:
+        train_subset_dql = subsets.get("train", None)
+        train_subset = dl.Filters(custom_filter=train_subset_dql)
+    if len(validation_subset) == 0 and subsets is not None:
+        validation_subset_dql = subsets.get("validation", None)
+        validation_subset = dl.Filters(custom_filter=validation_subset_dql)
     train_filter = dl.Filters(custom_filter=train_subset)
     validation_filter = dl.Filters(custom_filter=validation_subset)
 
@@ -74,7 +82,7 @@ def create_new_model(base_model: dl.Model,
                 configuration=_model_configuration,
                 train_filter=train_filter,
                 validation_filter=validation_filter,
-                status='created'
+                status='pre-trained'
             )
             break
         except dl.exceptions.BadRequest:

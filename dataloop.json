@@ -165,9 +165,6 @@
         "name": "compare_models",
         "entryPoint": "modules/model_compare.py",
         "className": "comparator",
-        "versions": {
-          "dtlpy": "1.86.9"
-        },
         "initInputs": [],
         "functions": [
           {
@@ -348,9 +345,6 @@
             "queueLength": 10
           },
           "preemptible": false
-        },
-        "versions": {
-          "dtlpy": "1.86.9"
         },
         "executionTimeout": 172800,
         "drainTime": 600,
