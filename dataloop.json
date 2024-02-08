@@ -235,23 +235,12 @@
         "moduleName": "model_data_split",
         "runtime": {
           "podType": "regular-xs",
-          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/cpu/node14:latest",
-          "numReplicas": 1,
-          "concurrency": 10,
-          "singleAgent": false,
           "autoscaler": {
             "type": "rabbitmq",
-            "minReplicas": 1,
+            "minReplicas": 0,
             "maxReplicas": 2,
             "queueLength": 10
-          },
-          "preemptible": false
-        },
-        "executionTimeout": 172800,
-        "drainTime": 600,
-        "onReset": "failed",
-        "runExecutionAsProcess": false,
-        "maxAttempts": 3,
+          }},
         "operation": "none"
       },
       {
@@ -284,24 +273,13 @@
         "moduleName": "create_new_model",
         "runtime": {
           "podType": "regular-xs",
-          "runnerImage": "dataloopai/dtlpy-agent:cpu.py3.8.opencv4.7",
-          "numReplicas": 1,
-          "concurrency": 10,
-          "pyPackages": {},
-          "singleAgent": false,
           "autoscaler": {
             "type": "rabbitmq",
-            "minReplicas": 1,
+            "minReplicas": 0,
             "maxReplicas": 2,
             "queueLength": 10
-          },
-          "preemptible": false
+          }
         },
-        "executionTimeout": 172800,
-        "drainTime": 600,
-        "onReset": "failed",
-        "runExecutionAsProcess": false,
-        "maxAttempts": 3,
         "operation": "none"
       },
       {
@@ -334,23 +312,12 @@
         "moduleName": "compare_models",
         "runtime": {
           "podType": "regular-xs",
-          "runnerImage": "dataloopai/dtlpy-agent:cpu.py3.8.opencv4.7",
-          "numReplicas": 1,
-          "concurrency": 10,
-          "singleAgent": false,
           "autoscaler": {
             "type": "rabbitmq",
             "minReplicas": 1,
             "maxReplicas": 2,
             "queueLength": 10
-          },
-          "preemptible": false
-        },
-        "executionTimeout": 172800,
-        "drainTime": 600,
-        "onReset": "failed",
-        "runExecutionAsProcess": false,
-        "maxAttempts": 3,
+          }},
         "operation": "none"
       }
     ]
