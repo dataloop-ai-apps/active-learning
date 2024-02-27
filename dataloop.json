@@ -1,5 +1,6 @@
 {
   "displayName": "Active Learning",
+  "description": "Active learning is a method in machine learning that selects more informative data points to label, prioritizing those\nthat would provide the most valuable information. By selectively labeling only informative examples, active learning\nhelps improve learning process efficiency to achieve high accuracy with fewer labeled samples.\n",
   "name": "active-learning",
   "scope": "public",
   "version": "0.1.2",
@@ -240,7 +241,8 @@
             "minReplicas": 0,
             "maxReplicas": 2,
             "queueLength": 10
-          }},
+          }
+        },
         "operation": "none"
       },
       {
@@ -317,7 +319,8 @@
             "minReplicas": 1,
             "maxReplicas": 2,
             "queueLength": 10
-          }},
+          }
+        },
         "operation": "none"
       }
     ]
