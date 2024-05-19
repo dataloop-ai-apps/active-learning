@@ -38,10 +38,15 @@ def create_new_model(base_model: dl.Model,
     print(f"train subset: {train_subset}")
     print(f"validation subset: {validation_subset}")
     print(f"model config: {model_configuration}")
+
+    pipeline = context.pipeline
+    pipeline_variables_dict = {var['name']: var for var in pipeline.variables}
+
     _model_configuration = base_model.configuration
     if isinstance(model_configuration, dict) and len(model_configuration) > 0:
         for config_name, config_val in model_configuration.items():
             _model_configuration[config_name] = config_val
+        pipeline_variables_dict['model_configuration'].value = _model_configuration
 
     logging.info(f'Creating new model from {base_model.name}.')
 
@@ -59,14 +64,18 @@ def create_new_model(base_model: dl.Model,
     new_dataset = dataset if dataset else base_model.dataset
     new_project = new_dataset.project
 
-    # get the train and validation subsets from the base model if they are not given
+    if train_subset is None or len(train_subset) == 0:
+        # get the train subset from the base model
+        train_subset = base_model.metadata.get('system', {}).get('subsets', {}).get('train', {})
+        pipeline_variables_dict['train_subset'].value = train_subset
+
+    if validation_subset is None or len(validation_subset) == 0:
+        # get the validation subset from the base model
+        validation_subset = base_model.metadata.get('system', {}).get('subsets', {}).get('validation', {})
+        pipeline_variables_dict['validation_subset'].value = validation_subset
+
     train_filter = dl.Filters(custom_filter=train_subset)
     validation_filter = dl.Filters(custom_filter=validation_subset)
-    if len(train_subset) == 0:
-        train_filter = None
-    if len(validation_subset) == 0:
-        validation_filter = None
-
     # try creating model clone with the given name, if it fails, add a number to the end of the name and try again
     i = 1
     new_model = None
