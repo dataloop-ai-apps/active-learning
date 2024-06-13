@@ -311,12 +311,13 @@
       },
       {
         "name": "compare-models",
+        "runnerImage": "dataloopai/dtlpy-agent:cpu.py3.8.opencv4.7",
         "moduleName": "compare_models",
         "runtime": {
           "podType": "regular-xs",
           "autoscaler": {
             "type": "rabbitmq",
-            "minReplicas": 1,
+            "minReplicas": 0,
             "maxReplicas": 2,
             "queueLength": 10
           }
