@@ -9,6 +9,11 @@
     "gitUrl": "https://github.com/dataloop-ai-apps/active-learning.git",
     "gitTag": "0.1.7"
   },
+  "metadata": {
+    "system": {
+      "systemCompute": true
+    }
+  },
   "components": {
     "panels": [
       {
