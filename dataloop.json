@@ -1,7 +1,7 @@
 {
-  "displayName": "Active Learning",
+  "displayName": "Active Learning Nodes",
   "description": "Active learning is a method in machine learning that selects more informative data points to label, prioritizing those\nthat would provide the most valuable information. By selectively labeling only informative examples, active learning\nhelps improve learning process efficiency to achieve high accuracy with fewer labeled samples.\n",
-  "name": "active-learning-components",
+  "name": "active-learning-nodes",
   "scope": "public",
   "version": "0.1.8",
   "codebase": {
