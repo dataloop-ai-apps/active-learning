@@ -64,6 +64,12 @@
                 "default": "Create New Model",
                 "required": true
               },
+              "rules": [
+                {
+                  "type": "required",
+                  "effect": "error"
+                }
+              ],
               "widget": "dl-input"
             },
             {
@@ -75,6 +81,12 @@
                 "default": "{model.name}_{datetime.datetime.now().strftime('%Y_%m_%d-T%H_%M_%S')}",
                 "required": true
               },
+              "rules": [
+                {
+                  "type": "required",
+                  "effect": "error"
+                }
+              ],
               "widget": "dl-input"
             }
           ]
