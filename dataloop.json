@@ -60,6 +60,7 @@
               "name": "createModel",
               "title": "Node Name",
               "props": {
+                "title": true,
                 "type": "string",
                 "default": "Create New Model",
                 "required": true
@@ -76,6 +77,7 @@
               "name": "modelName",
               "title": "New Model Name (formatted as a Python string, with dynamic variables in curly braces)",
               "props": {
+                "title": true,
                 "type": "string",
                 "default": "{model.name}_{datetime.datetime.now().strftime('%Y_%m_%d-T%H_%M_%S')}",
                 "required": true
@@ -108,6 +110,7 @@
               "name": "compareNode",
               "title": "Node Name",
               "props": {
+                "title": true,
                 "type": "string",
                 "default": "Compare Models",
                 "required": true
