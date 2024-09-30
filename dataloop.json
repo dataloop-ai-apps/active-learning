@@ -44,7 +44,7 @@
         "scope": "node"
       },
       {
-        "name": "createNewModel",
+        "name": "Create New Model2",
         "invoke": {
           "type": "function",
           "namespace": "create-new-model.create_new_model.create_new_model"
@@ -79,7 +79,7 @@
         }
       },
       {
-        "name": "compareModels",
+        "name": "Compare Models2",
         "invoke": {
           "type": "function",
           "namespace": "compare-models.compare_models.compare_models"
@@ -228,6 +228,31 @@
     ],
     "services": [
       {
+        "name": "model-data-split-nodes",
+        "panelNames": [
+          "dataSplit"
+        ],
+        "runtime": {
+          "podType": "regular-xs",
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/cpu/node14:latest",
+          "numReplicas": 1,
+          "concurrency": 10,
+          "singleAgent": false,
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 1,
+            "maxReplicas": 2,
+            "queueLength": 10
+          },
+          "preemptible": false
+        },
+        "executionTimeout": 172800,
+        "drainTime": 600,
+        "onReset": "failed",
+        "runExecutionAsProcess": false,
+        "maxAttempts": 3
+      },
+      {
         "name": "model-data-split",
         "moduleName": "model_data_split",
         "runtime": {
@@ -239,13 +264,9 @@
             "queueLength": 10
           }
         },
-        "executionTimeout": 172800,
-        "drainTime": 600,
-        "onReset": "failed",
-        "runExecutionAsProcess": false,
-        "maxAttempts": 3,
         "operation": "none"
       },
+
       {
         "name": "create-new-model",
         "moduleName": "create_new_model",
@@ -258,12 +279,6 @@
             "queueLength": 10
           }
         },
-        "executionTimeout": 172800,
-        "drainTime": 600,
-        "onReset": "failed",
-        "runExecutionAsProcess": false,
-        "maxAttempts": 3,
-
         "operation": "none"
       },
       {
@@ -273,16 +288,11 @@
           "podType": "regular-xs",
           "autoscaler": {
             "type": "rabbitmq",
-            "minReplicas": 1,
+            "minReplicas": 0,
             "maxReplicas": 2,
             "queueLength": 10
           }
         },
-        "executionTimeout": 172800,
-        "drainTime": 600,
-        "onReset": "failed",
-        "runExecutionAsProcess": false,
-        "maxAttempts": 3,
         "operation": "none"
       }
     ]
