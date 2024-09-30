@@ -45,6 +45,7 @@
       },
       {
         "name": "createModel2",
+        "displayName": "Create New Model",
         "invoke": {
           "type": "function",
           "namespace": "create-new-model.create_new_model.create_new_model"
@@ -73,13 +74,15 @@
                 "type": "string",
                 "default": "{model.name}_{datetime.datetime.now().strftime('%Y_%m_%d-T%H_%M_%S')}",
                 "required": true
-              }
+              },
+              "widget": "dl-input"
             }
           ]
         }
       },
       {
         "name": "compareModel2",
+        "displayName": "Compare Models",
         "invoke": {
           "type": "function",
           "namespace": "compare-models.compare_models.compare_models"
@@ -266,7 +269,6 @@
         },
         "operation": "none"
       },
-
       {
         "name": "create-new-model",
         "moduleName": "create_new_model",
