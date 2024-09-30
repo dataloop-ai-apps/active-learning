@@ -79,6 +79,7 @@
               "props": {
                 "title": true,
                 "type": "string",
+                "placeholder": "The model name should be formatted as a Python string. To prevent duplication of model names, include dynamic variables within curly braces.",
                 "default": "{model.name}_{datetime.datetime.now().strftime('%Y_%m_%d-T%H_%M_%S')}",
                 "required": true
               },
