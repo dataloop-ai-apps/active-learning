@@ -28,32 +28,6 @@
         "conditions": {
           "resources": []
         }
-      },
-      {
-        "name": "createNewModel",
-        "icon": "icon-dl-models",
-        "supportedSlots": [
-          {
-            "type": "pipelineNodeConfig",
-            "configuration": {}
-          }
-        ],
-        "conditions": {
-          "resources": []
-        }
-      },
-      {
-        "name": "compareModels",
-        "icon": "icon-dl-compare",
-        "supportedSlots": [
-          {
-            "type": "pipelineNodeConfig",
-            "configuration": {}
-          }
-        ],
-        "conditions": {
-          "resources": []
-        }
       }
     ],
     "pipelineNodes": [
@@ -79,7 +53,31 @@
         "categories": [
           "models"
         ],
-        "scope": "node"
+        "scope": "node",
+        "configuration": {
+          "fields": [
+            {
+              "name": "create_model",
+              "title": "Node Name",
+              "props": {
+                "type": "string",
+                "default": "Create New Model",
+                "required": true
+              },
+              "widget": "dl-input"
+            },
+            {
+              "name": "modelName",
+              "title": "New Model Name",
+              "infoMessage": "The model name should be formatted as a Python string. To prevent duplication of model names, include dynamic variables within curly braces.",
+              "props": {
+                "type": "string",
+                "default": "{model.name}_{datetime.datetime.now().strftime('%Y_%m_%d-T%H_%M_%S')}",
+                "required": true
+              }
+            }
+          ]
+        }
       },
       {
         "name": "compareModels",
@@ -91,7 +89,21 @@
         "categories": [
           "models"
         ],
-        "scope": "node"
+        "scope": "node",
+        "configuration": {
+          "fields": [
+            {
+              "name": "compare_models",
+              "title": "Node Name",
+              "props": {
+                "type": "string",
+                "default": "Compare Models",
+                "required": true
+              },
+              "widget": "dl-input"
+            }
+          ]
+        }
       }
     ],
     "modules": [
