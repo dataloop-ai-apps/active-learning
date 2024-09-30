@@ -44,7 +44,7 @@
         "scope": "node"
       },
       {
-        "name": "Create New Model2",
+        "name": "createModel2",
         "invoke": {
           "type": "function",
           "namespace": "create-new-model.create_new_model.create_new_model"
@@ -79,7 +79,7 @@
         }
       },
       {
-        "name": "Compare Models2",
+        "name": "compareModel2",
         "invoke": {
           "type": "function",
           "namespace": "compare-models.compare_models.compare_models"
