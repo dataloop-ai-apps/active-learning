@@ -28,32 +28,6 @@
         "conditions": {
           "resources": []
         }
-      },
-      {
-        "name": "createNewModel",
-        "icon": "icon-dl-models",
-        "supportedSlots": [
-          {
-            "type": "pipelineNodeConfig",
-            "configuration": {}
-          }
-        ],
-        "conditions": {
-          "resources": []
-        }
-      },
-      {
-        "name": "compareModels",
-        "icon": "icon-dl-compare",
-        "supportedSlots": [
-          {
-            "type": "pipelineNodeConfig",
-            "configuration": {}
-          }
-        ],
-        "conditions": {
-          "resources": []
-        }
       }
     ],
     "pipelineNodes": [
@@ -70,8 +44,8 @@
         "scope": "node"
       },
       {
-        "name": "createNewModel",
-        "panel": "createNewModel",
+        "name": "createModel",
+        "displayName": "Create New Model",
         "invoke": {
           "type": "function",
           "namespace": "create-new-model.create_new_model.create_new_model"
@@ -79,11 +53,49 @@
         "categories": [
           "models"
         ],
-        "scope": "node"
+        "scope": "node",
+        "configuration": {
+          "fields": [
+            {
+              "name": "createModel",
+              "title": "Node Name",
+              "props": {
+                "title": true,
+                "type": "string",
+                "default": "Create New Model",
+                "required": true
+              },
+              "rules": [
+                {
+                  "type": "required",
+                  "effect": "error"
+                }
+              ],
+              "widget": "dl-input"
+            },
+            {
+              "name": "modelName",
+              "title": "New Model Name (formatted as a Python string, with dynamic variables in curly braces)",
+              "props": {
+                "title": true,
+                "type": "string",
+                "default": "{model.name}_{datetime.datetime.now().strftime('%Y_%m_%d-T%H_%M_%S')}",
+                "required": true
+              },
+              "rules": [
+                {
+                  "type": "required",
+                  "effect": "error"
+                }
+              ],
+              "widget": "dl-input"
+            }
+          ]
+        }
       },
       {
-        "name": "compareModels",
-        "panel": "compareModels",
+        "name": "compareModel",
+        "displayName": "Compare Models",
         "invoke": {
           "type": "function",
           "namespace": "compare-models.compare_models.compare_models"
@@ -91,7 +103,28 @@
         "categories": [
           "models"
         ],
-        "scope": "node"
+        "scope": "node",
+        "configuration": {
+          "fields": [
+            {
+              "name": "compareNode",
+              "title": "Node Name",
+              "props": {
+                "title": true,
+                "type": "string",
+                "default": "Compare Models",
+                "required": true
+              },
+              "rules": [
+                {
+                  "type": "required",
+                  "effect": "error"
+                }
+              ],
+              "widget": "dl-input"
+            }
+          ]
+        }
       }
     ],
     "modules": [
@@ -251,31 +284,6 @@
         "operation": "none"
       },
       {
-        "name": "create-new-model-nodes",
-        "panelNames": [
-          "createNewModel"
-        ],
-        "runtime": {
-          "podType": "regular-xs",
-          "runnerImage": "dataloopai/dtlpy-agent:cpu.py3.8.opencv4.7",
-          "numReplicas": 1,
-          "concurrency": 10,
-          "singleAgent": false,
-          "autoscaler": {
-            "type": "rabbitmq",
-            "minReplicas": 1,
-            "maxReplicas": 2,
-            "queueLength": 10
-          },
-          "preemptible": false
-        },
-        "executionTimeout": 172800,
-        "drainTime": 600,
-        "onReset": "failed",
-        "runExecutionAsProcess": false,
-        "maxAttempts": 3
-      },
-      {
         "name": "create-new-model",
         "moduleName": "create_new_model",
         "runtime": {
@@ -290,38 +298,13 @@
         "operation": "none"
       },
       {
-        "name": "compare-models-nodes",
-        "panelNames": [
-          "compareModels"
-        ],
-        "runtime": {
-          "podType": "regular-xs",
-          "runnerImage": "dataloopai/dtlpy-agent:cpu.py3.8.opencv4.7",
-          "numReplicas": 1,
-          "concurrency": 10,
-          "singleAgent": false,
-          "autoscaler": {
-            "type": "rabbitmq",
-            "minReplicas": 1,
-            "maxReplicas": 2,
-            "queueLength": 10
-          },
-          "preemptible": false
-        },
-        "executionTimeout": 172800,
-        "drainTime": 600,
-        "onReset": "failed",
-        "runExecutionAsProcess": false,
-        "maxAttempts": 3
-      },
-      {
         "name": "compare-models",
         "moduleName": "compare_models",
         "runtime": {
           "podType": "regular-xs",
           "autoscaler": {
             "type": "rabbitmq",
-            "minReplicas": 1,
+            "minReplicas": 0,
             "maxReplicas": 2,
             "queueLength": 10
           }
