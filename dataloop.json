@@ -91,13 +91,19 @@
         "configuration": {
           "fields": [
             {
-              "name": "compare_models",
+              "name": "compare_node",
               "title": "Node Name",
               "props": {
                 "type": "string",
                 "default": "Compare Models",
                 "required": true
               },
+              "rules": [
+                {
+                  "type": "required",
+                  "effect": "error"
+                }
+              ],
               "widget": "dl-input"
             }
           ]
@@ -173,7 +179,7 @@
               }
             ],
             "displayIcon": "models",
-            "displayName": "Create New Model"
+            "displayName": "Create New Model2"
           }
         ]
       },
@@ -215,7 +221,7 @@
               }
             ],
             "displayIcon": "compare",
-            "displayName": "Compare Models"
+            "displayName": "Compare Models2"
           }
         ]
       }
