@@ -56,7 +56,7 @@
         "configuration": {
           "fields": [
             {
-              "name": "create_model",
+              "name": "createModel",
               "title": "Node Name",
               "props": {
                 "type": "string",
@@ -179,7 +179,7 @@
               }
             ],
             "displayIcon": "models",
-            "displayName": "Create New Model2"
+            "displayName": "Create New Model"
           }
         ]
       },
@@ -221,7 +221,7 @@
               }
             ],
             "displayIcon": "compare",
-            "displayName": "Compare Models2"
+            "displayName": "Compare Models"
           }
         ]
       }
