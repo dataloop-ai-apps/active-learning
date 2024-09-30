@@ -74,8 +74,7 @@
             },
             {
               "name": "modelName",
-              "title": "New Model Name",
-              "infoMessage": "The model name should be formatted as a Python string. To prevent duplication of model names, include dynamic variables within curly braces.",
+              "title": "New Model Name (formatted as a Python string, with dynamic variables in curly braces)",
               "props": {
                 "type": "string",
                 "default": "{model.name}_{datetime.datetime.now().strftime('%Y_%m_%d-T%H_%M_%S')}",
@@ -106,7 +105,7 @@
         "configuration": {
           "fields": [
             {
-              "name": "compare_node",
+              "name": "compareNode",
               "title": "Node Name",
               "props": {
                 "type": "string",
