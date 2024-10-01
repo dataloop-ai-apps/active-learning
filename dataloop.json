@@ -44,7 +44,7 @@
         "scope": "node"
       },
       {
-        "name": "createModel2",
+        "name": "createModel",
         "displayName": "Create New Model",
         "invoke": {
           "type": "function",
@@ -94,7 +94,7 @@
         }
       },
       {
-        "name": "compareModel2",
+        "name": "compareModel",
         "displayName": "Compare Models",
         "invoke": {
           "type": "function",
