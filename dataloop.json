@@ -75,12 +75,13 @@
             },
             {
               "name": "modelName",
-              "title": "New Model Name (formatted as a Python string, with dynamic variables in curly braces)",
+              "title": "New Model Name",
               "props": {
                 "title": true,
                 "type": "string",
                 "default": "{model.name}_{datetime.datetime.now().strftime('%Y_%m_%d-T%H_%M_%S')}",
-                "required": true
+                "required": true,
+                "tooltip": "Formatted as a Python string, with dynamic variables in curly braces."
               },
               "rules": [
                 {
@@ -274,7 +275,7 @@
         "moduleName": "model_data_split",
         "runtime": {
           "podType": "regular-xs",
-          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/active-learning:0.0.1",
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/active-learning:0.0.2",
           "autoscaler": {
             "type": "rabbitmq",
             "minReplicas": 0,
@@ -289,7 +290,7 @@
         "moduleName": "create_new_model",
         "runtime": {
           "podType": "regular-xs",
-          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/active-learning:0.0.1",
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/active-learning:0.0.2",
           "autoscaler": {
             "type": "rabbitmq",
             "minReplicas": 0,
@@ -304,7 +305,7 @@
         "moduleName": "compare_models",
         "runtime": {
           "podType": "regular-xs",
-          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/active-learning:0.0.1",
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/active-learning:0.0.2",
           "autoscaler": {
             "type": "rabbitmq",
             "minReplicas": 0,
