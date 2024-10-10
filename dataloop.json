@@ -75,12 +75,13 @@
             },
             {
               "name": "modelName",
-              "title": "New Model Name (formatted as a Python string, with dynamic variables in curly braces)",
+              "title": "New Model Name",
               "props": {
                 "title": true,
                 "type": "string",
                 "default": "{model.name}_{datetime.datetime.now().strftime('%Y_%m_%d-T%H_%M_%S')}",
-                "required": true
+                "required": true,
+                "tooltip": "Formatted as a Python string, with dynamic variables in curly braces."
               },
               "rules": [
                 {
