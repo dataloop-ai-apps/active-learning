@@ -275,7 +275,7 @@
         "moduleName": "model_data_split",
         "runtime": {
           "podType": "regular-xs",
-          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/active-learning:0.0.1",
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/active-learning:0.0.2",
           "autoscaler": {
             "type": "rabbitmq",
             "minReplicas": 0,
@@ -290,7 +290,7 @@
         "moduleName": "create_new_model",
         "runtime": {
           "podType": "regular-xs",
-          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/active-learning:0.0.1",
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/active-learning:0.0.2",
           "autoscaler": {
             "type": "rabbitmq",
             "minReplicas": 0,
@@ -305,7 +305,7 @@
         "moduleName": "compare_models",
         "runtime": {
           "podType": "regular-xs",
-          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/active-learning:0.0.1",
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/active-learning:0.0.2",
           "autoscaler": {
             "type": "rabbitmq",
             "minReplicas": 0,
