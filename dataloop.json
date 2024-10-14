@@ -15,6 +15,50 @@
     }
   },
   "components": {
+    "computeConfigs": [
+      {
+        "name": "model-data-split",
+        "runtime": {
+          "podType": "regular-xs",
+          "concurrency": 1,
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/active-learning:0.0.2",
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 0,
+            "maxReplicas": 2,
+            "queueLength": 100
+          }
+        }
+      },
+      {
+        "name": "create-new-model",
+        "runtime": {
+          "podType": "regular-xs",
+          "concurrency": 1,
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/active-learning:0.0.2",
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 0,
+            "maxReplicas": 2,
+            "queueLength": 100
+          }
+        }
+      },
+      {
+        "name": "compare-models",
+        "runtime": {
+          "podType": "regular-xs",
+          "concurrency": 1,
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/active-learning:0.0.2",
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 0,
+            "maxReplicas": 2,
+            "queueLength": 100
+          }
+        }
+      }
+    ],
     "panels": [
       {
         "name": "dataSplit",
@@ -131,6 +175,7 @@
     "modules": [
       {
         "name": "model_data_split",
+        "computeConfig": "model-data-split",
         "entryPoint": "modules/data_split.py",
         "className": "ServiceRunner",
         "initInputs": [],
@@ -157,6 +202,7 @@
       },
       {
         "name": "create_new_model",
+        "computeConfig": "create-new-model",
         "entryPoint": "modules/create_new_model.py",
         "className": "model_creator",
         "initInputs": [],
@@ -203,6 +249,7 @@
       },
       {
         "name": "compare_models",
+        "computeConfig": "compare-models",
         "entryPoint": "modules/model_compare.py",
         "className": "comparator",
         "initInputs": [],
@@ -269,51 +316,6 @@
         "onReset": "failed",
         "runExecutionAsProcess": false,
         "maxAttempts": 3
-      },
-      {
-        "name": "model-data-split",
-        "moduleName": "model_data_split",
-        "runtime": {
-          "podType": "regular-xs",
-          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/active-learning:0.0.2",
-          "autoscaler": {
-            "type": "rabbitmq",
-            "minReplicas": 0,
-            "maxReplicas": 2,
-            "queueLength": 10
-          }
-        },
-        "operation": "none"
-      },
-      {
-        "name": "create-new-model",
-        "moduleName": "create_new_model",
-        "runtime": {
-          "podType": "regular-xs",
-          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/active-learning:0.0.2",
-          "autoscaler": {
-            "type": "rabbitmq",
-            "minReplicas": 0,
-            "maxReplicas": 2,
-            "queueLength": 10
-          }
-        },
-        "operation": "none"
-      },
-      {
-        "name": "compare-models",
-        "moduleName": "compare_models",
-        "runtime": {
-          "podType": "regular-xs",
-          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/active-learning:0.0.2",
-          "autoscaler": {
-            "type": "rabbitmq",
-            "minReplicas": 0,
-            "maxReplicas": 2,
-            "queueLength": 10
-          }
-        },
-        "operation": "none"
       }
     ]
   }
