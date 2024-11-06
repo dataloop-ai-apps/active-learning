@@ -10,11 +10,8 @@ helps improve learning process efficiency to achieve high accuracy with fewer la
 
 ## Quick Start
 
-* In order to continue, you need to install our &nbsp;🚀 &nbsp;[Python SDK](https://github.com/dataloop-ai/dtlpy) and
-  use our [CLI](https://sdk-docs.dataloop.ai/en/latest/cli.html).
-
 1. Go to `Pipelines` and `Create new pipeline`
-2. Select the `Active Learning` template
+2. Select the `Active Learning Pipeline` template
 3. Fill in the required inputs and outputs in each node
 4. Start pipeline
 
@@ -48,7 +45,7 @@ respective subset using metadata tags.
 
 The tag will be added to a dictionary under `item.metadata.system.tags` in the following format:
 
-**Item metadata in train Subset Example**
+**Item metadata in train subset example**
 ```json
 {
   "system": {
@@ -58,7 +55,7 @@ The tag will be added to a dictionary under `item.metadata.system.tags` in the f
   }
 } 
 ```
-Filter items in the train subset, use the following DQL query:
+Use the following DQL query to filter items in the train subset:
 
 - [Train Subset Filter](pipeline_configs/train_subset_filter.json) 
 
@@ -95,11 +92,13 @@ documentation.
 
 <img src="assets/model_compare.png" width="400">
 
-The **Compare Models** node undertakes a comparison between two trained model versions based on their evaluation (same
-test set) or the model metrics created during the train process.
+The **Compare Models** node makes a comparison between two trained model versions either based on the model metrics 
+created during the train process, or based on the evaluation of each model using the same test set. To be able to 
+compare, _*both*_ models must have completed evaluation (see the pipeline image at the top of the page--the two 
+'Evaluate Model' nodes are included in this pipeline to ensure success).
 
-The New model input undergoes testing, and if it proves superior, it will be sent as an output labelled `update model`,
-signifying deployment readiness. Alternatively, it will be labelled `Discard`. For more information, see our Active
+The New Model input undergoes testing, and if it proves superior, it will be sent as an output labelled `update model`,
+signifying deployment readiness. Alternatively, it will be labelled `discard`. For more information, see our Active
 Learning documentation.
 
 ### Parameters
@@ -125,7 +124,7 @@ Learning documentation.
       less than this value, it may not be considered a significant change in performance.
     
 
-Please note that, as of the current version, only precision-recall metrics are supported in the section, Additional metric support may be added in future updates.
+Please note that as of the current version, only precision-recall metrics are supported. Additional metrics support may be added in future updates.
 
 - If any other metrics are provided, they will be ignored.
 - If precision recall is not provided, the default values will be used as shown in the [Example](pipeline_configs/compare_configurations.json).
@@ -140,5 +139,5 @@ Please note that, as of the current version, only precision-recall metrics are s
 
 ## Contributions, Bugs and Issues - How to Contribute
 
-We welcome anyone to help us improve this app.  
-[Here's](CONTRIBUTING.md) a detailed instructions to help you open a bug or ask for a feature request.
+We welcome everyone to help improve this app.  
+[Here](CONTRIBUTING.md) are detailed instructions on how to open a bug or make a feature request.

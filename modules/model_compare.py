@@ -163,7 +163,7 @@ def compare_models(previous_model: dl.Model,
         default_compare_config = json.load(f)
 
     if compare_config is None:
-        logger.warning("No metrics were specified in the compare_config, Will use precision-recall by default.")
+        logger.warning("No metrics were specified in the compare_config. Using precision-recall by default.")
         compare_config = default_compare_config
 
     if 'precision_recall' not in compare_config:
