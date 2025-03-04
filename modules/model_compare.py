@@ -2,7 +2,7 @@ import dtlpy as dl
 import numpy as np
 import pandas as pd
 import logging
-from dtlpymetrics import precision_recall
+from dtlpymetrics.scoring import calc_precision_recall
 from sklearn.metrics import auc
 import json
 import os
@@ -57,12 +57,12 @@ def get_eval_df(previous_model: dl.Model,
     for metric_name, metric_config in compare_config.items():
         if metric_name == 'precision_recall':
             iou_threshold = metric_config.get('iou_threshold', 0.5)
-            current_pr_df = precision_recall.calc_precision_recall(dataset_id=dataset.id,
+            current_pr_df = calc_precision_recall(dataset_id=dataset.id,
                                                                    model_id=previous_model.id,
                                                                    iou_threshold=iou_threshold,
                                                                    method_type='every_point')
 
-            new_pr_df = precision_recall.calc_precision_recall(dataset_id=dataset.id,
+            new_pr_df = calc_precision_recall(dataset_id=dataset.id,
                                                                model_id=new_model.id,
                                                                iou_threshold=iou_threshold,
                                                                method_type='every_point')
@@ -163,7 +163,7 @@ def compare_models(previous_model: dl.Model,
         default_compare_config = json.load(f)
 
     if compare_config is None:
-        logger.warning("No metrics were specified in the compare_config, Will use precision-recall by default.")
+        logger.warning("No metrics were specified in the compare_config. Using precision-recall by default.")
         compare_config = default_compare_config
 
     if 'precision_recall' not in compare_config:

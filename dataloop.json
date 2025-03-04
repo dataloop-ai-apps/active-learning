@@ -1,45 +1,68 @@
 {
   "displayName": "Active Learning",
-  "description": "Active learning is a method in machine learning that selects more informative data points to label, prioritizing those\nthat would provide the most valuable information. By selectively labeling only informative examples, active learning\nhelps improve learning process efficiency to achieve high accuracy with fewer labeled samples.\n",
+  "description": "Adds pipeline nodes for Active Learning. Active learning is a method in machine learning that selects more informative data points to label, prioritizing those\nthat would provide the most valuable information. By selectively labeling only informative examples, active learning\nhelps improve learning process efficiency to achieve high accuracy with fewer labeled samples.\n",
   "name": "active-learning",
   "scope": "public",
-  "version": "0.1.7",
+  "version": "0.1.21",
   "codebase": {
     "type": "git",
     "gitUrl": "https://github.com/dataloop-ai-apps/active-learning.git",
-    "gitTag": "0.1.7"
+    "gitTag": "0.1.21"
+  },
+  "metadata": {
+    "system": {
+      "systemCompute": true
+    }
   },
   "components": {
+    "computeConfigs": [
+      {
+        "name": "model-data-split",
+        "runtime": {
+          "podType": "regular-xs",
+          "concurrency": 1,
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/active-learning:0.0.2",
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 0,
+            "maxReplicas": 2,
+            "queueLength": 100
+          }
+        }
+      },
+      {
+        "name": "create-new-model",
+        "runtime": {
+          "podType": "regular-xs",
+          "concurrency": 1,
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/active-learning:0.0.2",
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 0,
+            "maxReplicas": 2,
+            "queueLength": 100
+          }
+        }
+      },
+      {
+        "name": "compare-models",
+        "runtime": {
+          "podType": "regular-xs",
+          "concurrency": 1,
+          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/apps/active-learning:0.0.2",
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 0,
+            "maxReplicas": 2,
+            "queueLength": 100
+          }
+        }
+      }
+    ],
     "panels": [
       {
         "name": "dataSplit",
         "icon": "icon-dl-qa-sampling",
-        "supportedSlots": [
-          {
-            "type": "pipelineNodeConfig",
-            "configuration": {}
-          }
-        ],
-        "conditions": {
-          "resources": []
-        }
-      },
-      {
-        "name": "createNewModel",
-        "icon": "icon-dl-models",
-        "supportedSlots": [
-          {
-            "type": "pipelineNodeConfig",
-            "configuration": {}
-          }
-        ],
-        "conditions": {
-          "resources": []
-        }
-      },
-      {
-        "name": "compareModels",
-        "icon": "icon-dl-compare",
         "supportedSlots": [
           {
             "type": "pipelineNodeConfig",
@@ -66,7 +89,7 @@
       },
       {
         "name": "createNewModel",
-        "panel": "createNewModel",
+        "displayName": "Create New Model",
         "invoke": {
           "type": "function",
           "namespace": "create-new-model.create_new_model.create_new_model"
@@ -74,11 +97,50 @@
         "categories": [
           "models"
         ],
-        "scope": "node"
+        "scope": "node",
+        "configuration": {
+          "fields": [
+            {
+              "name": "createModel",
+              "title": "Node Name",
+              "props": {
+                "title": true,
+                "type": "string",
+                "default": "Create New Model",
+                "required": true
+              },
+              "rules": [
+                {
+                  "type": "required",
+                  "effect": "error"
+                }
+              ],
+              "widget": "dl-input"
+            },
+            {
+              "name": "modelName",
+              "title": "New Model Name",
+              "props": {
+                "title": true,
+                "type": "string",
+                "default": "{model.name}_{datetime.datetime.now().strftime('%Y_%m_%d-T%H_%M_%S')}",
+                "required": true,
+                "tooltip": "Formatted as a Python string, with dynamic variables in curly braces."
+              },
+              "rules": [
+                {
+                  "type": "required",
+                  "effect": "error"
+                }
+              ],
+              "widget": "dl-input"
+            }
+          ]
+        }
       },
       {
         "name": "compareModels",
-        "panel": "compareModels",
+        "displayName": "Compare Models",
         "invoke": {
           "type": "function",
           "namespace": "compare-models.compare_models.compare_models"
@@ -86,12 +148,34 @@
         "categories": [
           "models"
         ],
-        "scope": "node"
+        "scope": "node",
+        "configuration": {
+          "fields": [
+            {
+              "name": "compareNode",
+              "title": "Node Name",
+              "props": {
+                "title": true,
+                "type": "string",
+                "default": "Compare Models",
+                "required": true
+              },
+              "rules": [
+                {
+                  "type": "required",
+                  "effect": "error"
+                }
+              ],
+              "widget": "dl-input"
+            }
+          ]
+        }
       }
     ],
     "modules": [
       {
         "name": "model_data_split",
+        "computeConfig": "model-data-split",
         "entryPoint": "modules/data_split.py",
         "className": "ServiceRunner",
         "initInputs": [],
@@ -118,6 +202,7 @@
       },
       {
         "name": "create_new_model",
+        "computeConfig": "create-new-model",
         "entryPoint": "modules/create_new_model.py",
         "className": "model_creator",
         "initInputs": [],
@@ -164,6 +249,7 @@
       },
       {
         "name": "compare_models",
+        "computeConfig": "compare-models",
         "entryPoint": "modules/model_compare.py",
         "className": "comparator",
         "initInputs": [],
