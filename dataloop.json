@@ -82,9 +82,7 @@
           "type": "function",
           "namespace": "model-data-split.model_data_split.data_split"
         },
-        "categories": [
-          "models"
-        ],
+        "categories": ["models"],
         "scope": "node"
       },
       {
@@ -94,9 +92,7 @@
           "type": "function",
           "namespace": "create-new-model.create_new_model.create_new_model"
         },
-        "categories": [
-          "models"
-        ],
+        "categories": ["models"],
         "scope": "node",
         "configuration": {
           "fields": [
@@ -145,9 +141,7 @@
           "type": "function",
           "namespace": "compare-models.compare_models.compare_models"
         },
-        "categories": [
-          "models"
-        ],
+        "categories": ["models"],
         "scope": "node",
         "configuration": {
           "fields": [
@@ -279,10 +273,7 @@
               {
                 "name": "winning_model",
                 "type": "Model",
-                "actions": [
-                  "update model",
-                  "discard"
-                ]
+                "actions": ["update model", "discard"]
               }
             ],
             "displayIcon": "compare",
@@ -294,12 +285,10 @@
     "services": [
       {
         "name": "model-data-split-nodes",
-        "panelNames": [
-          "dataSplit"
-        ],
+        "panelNames": ["dataSplit"],
         "runtime": {
           "podType": "regular-xs",
-          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/cpu/node14:latest",
+          "runnerImage": "docker.io/dataloopai/dtlpy-agent:cpu.py3.10.opencv",
           "numReplicas": 1,
           "concurrency": 10,
           "singleAgent": false,
@@ -311,11 +300,7 @@
           },
           "preemptible": false
         },
-        "executionTimeout": 172800,
-        "drainTime": 600,
-        "onReset": "failed",
-        "runExecutionAsProcess": false,
-        "maxAttempts": 3
+        "executionTimeout": 7200
       }
     ]
   }
