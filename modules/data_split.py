@@ -8,8 +8,7 @@ logger = logging.getLogger('DataSplit')
 
 class ServiceRunner(dl.BaseServiceRunner):
 
-    def __init__(self):
-        ...
+    def __init__(self): ...
 
     @staticmethod
     def data_split(item: dl.Item, progress: dl.Progress, context: dl.Context) -> dl.Item:

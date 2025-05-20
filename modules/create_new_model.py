@@ -5,11 +5,12 @@ import datetime
 
 logging.basicConfig(level=logging.INFO)
 
-model_creator = dl.AppModule(name='create_new_model',
-                             description='Create a new version of a model. Models can be created '
-                                         'from pretrained models, or from a custom model. The model '
-                                         'will be created in the same project as the input model.',
-                             )
+model_creator = dl.AppModule(
+    name='create_new_model',
+    description='Create a new version of a model. Models can be created '
+    'from pretrained models, or from a custom model. The model '
+    'will be created in the same project as the input model.',
+)
 
 
 @model_creator.set_init()
@@ -18,12 +19,14 @@ def new_model_init():
 
 
 @model_creator.add_function(display_name='Create New Model')
-def create_new_model(base_model: dl.Model,
-                     dataset: dl.Dataset,
-                     train_subset: dict,
-                     validation_subset: dict,
-                     model_configuration: dict,
-                     context: dl.Context):
+def create_new_model(
+    base_model: dl.Model,
+    dataset: dl.Dataset,
+    train_subset: dict,
+    validation_subset: dict,
+    model_configuration: dict,
+    context: dl.Context,
+):
     """
     Create a new model version from the input model
 
@@ -88,7 +91,7 @@ def create_new_model(base_model: dl.Model,
                 configuration=_model_configuration,
                 train_filter=train_filter,
                 validation_filter=validation_filter,
-                status='created'
+                status='created',
             )
             break
         except dl.exceptions.BadRequest:

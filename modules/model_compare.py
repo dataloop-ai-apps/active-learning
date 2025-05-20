@@ -7,9 +7,11 @@ from sklearn.metrics import auc
 import json
 import os
 
-comparator = dl.AppModule(name='compare_models',
-                          description='Compares two models in relation to a user-specified.'
-                                      'metric and attaches a "win" or "lose" action filter.')
+comparator = dl.AppModule(
+    name='compare_models',
+    description='Compares two models in relation to a user-specified.'
+    'metric and attaches a "win" or "lose" action filter.',
+)
 
 logger = logging.getLogger('ModelCompare')
 logger.setLevel(logging.INFO)
@@ -40,11 +42,7 @@ def metrics_to_df(model: dl.Model) -> pd.DataFrame:
     return samples
 
 
-def get_eval_df(previous_model: dl.Model,
-                new_model: dl.Model,
-                dataset: dl.Dataset,
-                compare_config: dict
-                ):
+def get_eval_df(previous_model: dl.Model, new_model: dl.Model, dataset: dl.Dataset, compare_config: dict):
     """
     Get evaluation dataframe for each model based on the metrics specified in the compare_config.
     :param previous_model: previous model
@@ -57,26 +55,28 @@ def get_eval_df(previous_model: dl.Model,
     for metric_name, metric_config in compare_config.items():
         if metric_name == 'precision_recall':
             iou_threshold = metric_config.get('iou_threshold', 0.5)
-            current_pr_df = calc_precision_recall(dataset_id=dataset.id,
-                                                                   model_id=previous_model.id,
-                                                                   iou_threshold=iou_threshold,
-                                                                   method_type='every_point')
+            current_pr_df = calc_precision_recall(
+                dataset_id=dataset.id,
+                model_id=previous_model.id,
+                iou_threshold=iou_threshold,
+                method_type='every_point',
+            )
 
-            new_pr_df = calc_precision_recall(dataset_id=dataset.id,
-                                                               model_id=new_model.id,
-                                                               iou_threshold=iou_threshold,
-                                                               method_type='every_point')
+            new_pr_df = calc_precision_recall(
+                dataset_id=dataset.id, model_id=new_model.id, iou_threshold=iou_threshold, method_type='every_point'
+            )
             metric_config['current_model_metrics'] = current_pr_df
             metric_config['new_model_metrics'] = new_pr_df
         else:
             logger.warning(
-                NotImplementedError(f"Metric {metric_name} is not implemented, use precision_recall instead."))
+                NotImplementedError(f"Metric {metric_name} is not implemented, use precision_recall instead.")
+            )
             continue
 
 
-def compare_model_training(current_model_metrics: pd.DataFrame,
-                           new_model_metrics: pd.DataFrame,
-                           configuration: dict) -> bool:
+def compare_model_training(
+    current_model_metrics: pd.DataFrame, new_model_metrics: pd.DataFrame, configuration: dict
+) -> bool:
     """
     :param current_model_metrics:
     :param new_model_metrics:
@@ -102,8 +102,9 @@ def compare_model_training(current_model_metrics: pd.DataFrame,
         # TODO do some sanity check here (if none, give default value and warn)
 
         # now we filter the current model Dataframe by column values
-        current_values = current_model_metrics.loc[(current_model_metrics['figure'] == figure) &
-                                                   (current_model_metrics['legend'] == legend)]
+        current_values = current_model_metrics.loc[
+            (current_model_metrics['figure'] == figure) & (current_model_metrics['legend'] == legend)
+        ]
         current_x = current_values['x'].values
         current_y = current_values['y'].values
 
@@ -112,8 +113,9 @@ def compare_model_training(current_model_metrics: pd.DataFrame,
         # TODO check the number of returned values and warn if there is more than one
         current_value = current_y[current_x == current_x[x_index]][0]
         # now we filter the new model Dataframe by column values
-        new_values = new_model_metrics.loc[(new_model_metrics['figure'] == figure) &
-                                           (new_model_metrics['legend'] == legend)]
+        new_values = new_model_metrics.loc[
+            (new_model_metrics['figure'] == figure) & (new_model_metrics['legend'] == legend)
+        ]
         new_x = new_values['x'].values
         new_y = new_values['y'].values
         if len(new_x) == 0 or len(new_y) == 0:
@@ -121,14 +123,15 @@ def compare_model_training(current_model_metrics: pd.DataFrame,
         # TODO check the number of returned values and warn if there is more than one
         new_value = new_y[new_x == new_x[x_index]][0]
         if maximize is True:
-            win_check = (new_value > (current_value + min_delta))
+            win_check = new_value > (current_value + min_delta)
         else:
-            win_check = (new_value < (current_value - min_delta))
+            win_check = new_value < (current_value - min_delta)
         new_model_wins.append(win_check)
 
         if verbose:
             logger.info(
-                f'comparing: figure: {figure}, legend {legend}. maximize {maximize}, min_delta {min_delta}, current_value: {current_value}, new_value: {new_value}. new model won? {win_check}')
+                f'comparing: figure: {figure}, legend {legend}. maximize {maximize}, min_delta {min_delta}, current_value: {current_value}, new_value: {new_value}. new model won? {win_check}'
+            )
 
     # TODO check all config return types
     logger.info(f"finished comparing, wins list: {new_model_wins}")
@@ -137,13 +140,14 @@ def compare_model_training(current_model_metrics: pd.DataFrame,
 
 
 @comparator.add_function(display_name="Compare Models")
-def compare_models(previous_model: dl.Model,
-                   new_model: dl.Model,
-                   progress: dl.Progress,
-                   context: dl.Context,
-                   compare_config: dict = None,
-                   dataset: dl.Dataset = None,
-                   ) -> dl.Model:
+def compare_models(
+    previous_model: dl.Model,
+    new_model: dl.Model,
+    progress: dl.Progress,
+    context: dl.Context,
+    compare_config: dict = None,
+    dataset: dl.Dataset = None,
+) -> dl.Model:
     """
     Compare metrics of two models to determine which is better.
 
@@ -167,19 +171,18 @@ def compare_models(previous_model: dl.Model,
         compare_config = default_compare_config
 
     if 'precision_recall' not in compare_config:
-        logger.warning(f"Precision recall not specified in compare_config. Using default values.")
+        logger.warning("Precision recall not specified in compare_config. Using default values.")
         compare_config['precision_recall'] = default_compare_config.get('precision_recall', dict())
 
     if dataset is None:
         # compare by model training
-        is_improved = compare_model_training(current_model_metrics=metrics_to_df(previous_model),
-                                             new_model_metrics=metrics_to_df(new_model),
-                                             configuration=compare_config)
+        is_improved = compare_model_training(
+            current_model_metrics=metrics_to_df(previous_model),
+            new_model_metrics=metrics_to_df(new_model),
+            configuration=compare_config,
+        )
     else:
-        get_eval_df(previous_model=previous_model,
-                    new_model=new_model,
-                    compare_config=compare_config,
-                    dataset=dataset)
+        get_eval_df(previous_model=previous_model, new_model=new_model, compare_config=compare_config, dataset=dataset)
         is_improved = compare_model_evaluation(configuration=compare_config)
     winning_model = new_model if is_improved else previous_model
 
@@ -338,10 +341,7 @@ def _compare(configuration: dict) -> bool:
 
         return _current_metric, _new_metric
 
-    compare_funcs = {
-        'precision_recall': _compare_auc_pr,
-        'annotation_scores': _compare_annotation_scores
-    }
+    compare_funcs = {'precision_recall': _compare_auc_pr, 'annotation_scores': _compare_annotation_scores}
     result = False
     for metric_name, metric_config in configuration.items():
         if not metric_name == 'precision_recall':
@@ -349,9 +349,7 @@ def _compare(configuration: dict) -> bool:
         compare_func = compare_funcs.get(metric_name, None)
         current_sheet = metric_config.get('current_model_metrics')
         new_sheet = metric_config.get('new_model_metrics')
-        current_metric, new_metric = _filter(current_sheet,
-                                             new_sheet,
-                                             **metric_config)
+        current_metric, new_metric = _filter(current_sheet, new_sheet, **metric_config)
 
         result = compare_func(current_metric, new_metric, **metric_config)
     return result
