@@ -1,15 +1,14 @@
-import dtlpy as dl
-import random
 import logging
+import random
+import dtlpy as dl
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('DataSplit')
 
 
-class ServiceRunner(dl.BaseServiceRunner):
+class DataSplitter(dl.BaseServiceRunner):
 
-    def __init__(self):
-        ...
+    def __init__(self): ...
 
     @staticmethod
     def data_split(item: dl.Item, progress: dl.Progress, context: dl.Context) -> dl.Item:
