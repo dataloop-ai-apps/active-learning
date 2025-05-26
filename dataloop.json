@@ -290,7 +290,7 @@
         ],
         "runtime": {
           "podType": "regular-xs",
-          "runnerImage": "gcr.io/viewo-g/piper/agent/runner/cpu/node14:latest",
+          "runnerImage": "dataloopai/py3.10.node18",
           "numReplicas": 1,
           "concurrency": 10,
           "singleAgent": false,
