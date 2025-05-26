@@ -3,11 +3,11 @@
   "description": "Adds pipeline nodes for Active Learning. Active learning is a method in machine learning that selects more informative data points to label, prioritizing those\nthat would provide the most valuable information. By selectively labeling only informative examples, active learning\nhelps improve learning process efficiency to achieve high accuracy with fewer labeled samples.\n",
   "name": "active-learning",
   "scope": "public",
-  "version": "0.1.21",
+  "version": "0.1.22",
   "codebase": {
     "type": "git",
     "gitUrl": "https://github.com/dataloop-ai-apps/active-learning.git",
-    "gitTag": "0.1.21"
+    "gitTag": "0.1.22"
   },
   "metadata": {
     "system": {
@@ -82,9 +82,7 @@
           "type": "function",
           "namespace": "model-data-split.model_data_split.data_split"
         },
-        "categories": [
-          "models"
-        ],
+        "categories": ["models"],
         "scope": "node"
       },
       {
@@ -94,9 +92,7 @@
           "type": "function",
           "namespace": "create-new-model.create_new_model.create_new_model"
         },
-        "categories": [
-          "models"
-        ],
+        "categories": ["models"],
         "scope": "node",
         "configuration": {
           "fields": [
@@ -145,9 +141,7 @@
           "type": "function",
           "namespace": "compare-models.compare_models.compare_models"
         },
-        "categories": [
-          "models"
-        ],
+        "categories": ["models"],
         "scope": "node",
         "configuration": {
           "fields": [
@@ -279,10 +273,7 @@
               {
                 "name": "winning_model",
                 "type": "Model",
-                "actions": [
-                  "update model",
-                  "discard"
-                ]
+                "actions": ["update model", "discard"]
               }
             ],
             "displayIcon": "compare",
@@ -291,7 +282,7 @@
         ]
       }
     ],
-    "services": [
+ "services": [
       {
         "name": "model-data-split-nodes",
         "panelNames": [
