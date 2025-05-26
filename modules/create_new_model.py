@@ -31,14 +31,14 @@ class ModelCreator(dl.BaseServiceRunner):
         print(f"train subset: {train_subset}")
         print(f"validation subset: {validation_subset}")
         print(f"model config: {model_configuration}")
-    
+
         pipeline = context.pipeline
         pipeline_variables_dict = {var['name']: var for var in pipeline.variables}
 
         _model_configuration = base_model.configuration
-            if isinstance(model_configuration, dict) and len(model_configuration) > 0:
-                for config_name, config_val in model_configuration.items():
-                    _model_configuration[config_name] = config_val
+        if isinstance(model_configuration, dict) and len(model_configuration) > 0:
+            for config_name, config_val in model_configuration.items():
+                _model_configuration[config_name] = config_val
             pipeline_variables_dict['model_configuration'].value = _model_configuration
 
         logger.info(f'Creating new model from {base_model.name}.')
