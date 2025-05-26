@@ -171,7 +171,7 @@
         "name": "model_data_split",
         "computeConfig": "model-data-split",
         "entryPoint": "modules/data_split.py",
-        "className": "ServiceRunner",
+        "className": "DataSplitter",
         "initInputs": [],
         "functions": [
           {

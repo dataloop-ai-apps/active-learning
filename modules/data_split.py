@@ -6,7 +6,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('DataSplit')
 
 
-class ServiceRunner(dl.BaseServiceRunner):
+class DataSplitter(dl.BaseServiceRunner):
 
     def __init__(self): ...
 
