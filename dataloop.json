@@ -296,7 +296,7 @@
           "singleAgent": false,
           "autoscaler": {
             "type": "rabbitmq",
-            "minReplicas": 0,
+            "minReplicas": 1,
             "maxReplicas": 2,
             "queueLength": 10
           },
