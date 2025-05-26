@@ -1,6 +1,6 @@
-import dtlpy as dl
-import random
 import logging
+import random
+import dtlpy as dl
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('DataSplit')
