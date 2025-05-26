@@ -158,7 +158,7 @@ class ModelComparer(dl.BaseServiceRunner):
         # TODO check all config return types
         logger.info(f"Finished model comparison, wins list: {new_model_wins}")
 
-        return ModelComparer.check_check_if_winning(wins, new_model_wins)
+        return ModelComparer.check_if_winning(wins, new_model_wins)
 
     @staticmethod
     def compare_models(
@@ -238,7 +238,7 @@ class ModelComparer(dl.BaseServiceRunner):
         return winning_model
 
     @staticmethod
-    def check_check_if_winning(wins, new_model_wins):
+    def check_if_winning(wins, new_model_wins):
         """
         Determine if the new model is winning based on the specified winning criteria.
 
@@ -321,7 +321,7 @@ class ModelComparer(dl.BaseServiceRunner):
     @staticmethod
     def _compare(configuration: dict) -> bool:
         """
-        Compare model performance metrics between two result.csv files to determine
+-        Compare model performance metrics between two result.csv files to determine
         which model performs better according to specified criteria.
         :param configuration: Dictionary containing comparison settings and thresholds
                             for different metrics (see Keyword Arguments below)

@@ -18,7 +18,7 @@ class ModelCreator(dl.BaseServiceRunner):
         context: dl.Context,
     ):
         """
-        Create a new model version from the input model
+        Create a new model version from the input model 
 
         :param base_model: model that will be used as a base for the new model.
         :param dataset: dataset that will be used for training the new model.
