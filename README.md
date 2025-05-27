@@ -6,6 +6,10 @@ helps improve the learning process and achieve high accuracy with fewer labeled 
 
 ![alt text](assets/active-learning-pipeline.png)
 
+This repo is for the nodes required for Active Learning workflows. To see the readme for Active Learning Pipeline Templates, see the link [here](https://github.com/dataloop-ai-apps/pipeline-templates/tree/main/mlops/active_learning).
+
+Once you have the Active Learning Pipeline Template application installed, you can use the Quick Start steps below.
+
 ---
 
 ## Quick Start
