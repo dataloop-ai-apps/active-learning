@@ -1,7 +1,7 @@
 import logging
 import dtlpy as dl
 
-logger = logging.getLogger('[ModelCreator]')
+logger = logging.getLogger("[ModelCreator]")
 
 
 class ModelCreator(dl.BaseServiceRunner):
@@ -18,7 +18,7 @@ class ModelCreator(dl.BaseServiceRunner):
         context: dl.Context,
     ):
         """
-        Create a new model version from the input model 
+        Create a new model version from the input model
 
         :param base_model: model that will be used as a base for the new model.
         :param dataset: dataset that will be used for training the new model.
@@ -33,23 +33,23 @@ class ModelCreator(dl.BaseServiceRunner):
         print(f"model config: {model_configuration}")
 
         pipeline = context.pipeline
-        pipeline_variables_dict = {var['name']: var for var in pipeline.variables}
+        pipeline_variables_dict = {var.name: var for var in pipeline.variables}
 
         _model_configuration = base_model.configuration
         if isinstance(model_configuration, dict) and len(model_configuration) > 0:
             for config_name, config_val in model_configuration.items():
                 _model_configuration[config_name] = config_val
-            pipeline_variables_dict['model_configuration'].value = _model_configuration
+            pipeline_variables_dict["model_configuration"].value = _model_configuration
 
-        logger.info(f'Creating new model from {base_model.name}.')
+        logger.info(f"Creating new model from {base_model.name}.")
 
         node = context.node
-        input_name = node.metadata['customNodeConfig']['modelName']
-        # input_name = "{base_model.name}_{datetime.datetime.now().strftime('%Y_%m_%d-T%H_%M_%S')}"  # debug
+        input_name = node.metadata["customNodeConfig"]["modelName"]
+        # input_name = "{base_model.name}_{datetime.datetime.now().strftime("%Y_%m_%d-T%H_%M_%S")}"  # debug
         new_name = input_name
-        while '{' in new_name:
-            name_start, name_end = new_name.split('{', 1)
-            executable_name, name_end = name_end.split('}', 1)
+        while "{" in new_name:
+            name_start, name_end = new_name.split("{", 1)
+            executable_name, name_end = name_end.split("}", 1)
             exec_var = eval(executable_name)
             new_name = name_start + exec_var + name_end
 
@@ -58,13 +58,13 @@ class ModelCreator(dl.BaseServiceRunner):
 
         if train_subset is None or len(train_subset) == 0:
             # get the train subset from the base model
-            train_subset = base_model.metadata.get('system', {}).get('subsets', {}).get('train', {})
-            pipeline_variables_dict['train_subset'].value = train_subset
+            train_subset = base_model.metadata.get("system", {}).get("subsets", {}).get("train", {})
+            pipeline_variables_dict["train_subset"].value = train_subset
 
         if validation_subset is None or len(validation_subset) == 0:
             # get the validation subset from the base model
-            validation_subset = base_model.metadata.get('system', {}).get('subsets', {}).get('validation', {})
-            pipeline_variables_dict['validation_subset'].value = validation_subset
+            validation_subset = base_model.metadata.get("system", {}).get("subsets", {}).get("validation", {})
+            pipeline_variables_dict["validation_subset"].value = validation_subset
         # update back to pipeline variables
         context.pipeline.variables = pipeline_variables_dict
 
@@ -82,12 +82,12 @@ class ModelCreator(dl.BaseServiceRunner):
                     configuration=_model_configuration,
                     train_filter=train_filter,
                     validation_filter=validation_filter,
-                    status='created',
+                    status="created",
                 )
                 break
             except dl.exceptions.BadRequest:
-                new_name = f'{new_name}_v{i}'
+                new_name = f"{new_name}_v{i}"
                 i += 1
 
-        logger.info(f'New model {new_model.name} created from {base_model.name}.')
+        logger.info(f"New model {new_model.name} created from {base_model.name}.")
         return new_model, base_model
