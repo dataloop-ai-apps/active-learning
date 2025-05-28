@@ -1,3 +1,4 @@
+import datetime
 import logging
 import dtlpy as dl
 
@@ -44,8 +45,10 @@ class ModelCreator(dl.BaseServiceRunner):
         logger.info(f"Creating new model from {base_model.name}.")
 
         node = context.node
-        input_name = node.metadata["customNodeConfig"]["modelName"]
-        # input_name = "{base_model.name}_{datetime.datetime.now().strftime("%Y_%m_%d-T%H_%M_%S")}"  # debug
+        try:
+            input_name = node.metadata['customNodeConfig']['modelName']
+        except Exception:
+            input_name = f"{base_model.name}_{datetime.datetime.now().strftime('%Y_%m_%d-T%H_%M_%S')}"
         new_name = input_name
         while "{" in new_name:
             name_start, name_end = new_name.split("{", 1)
