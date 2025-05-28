@@ -6,6 +6,10 @@ helps improve the learning process and achieve high accuracy with fewer labeled 
 
 ![alt text](assets/active-learning-pipeline.png)
 
+This repo is for the nodes required for Active Learning workflows. To see the readme for Active Learning Pipeline Templates, see the link [here](https://github.com/dataloop-ai-apps/pipeline-templates/tree/main/mlops/active_learning).
+
+Once you have the Active Learning Pipeline Template application installed, you can use the Quick Start steps below.
+
 ---
 
 ## Quick Start
@@ -14,6 +18,8 @@ helps improve the learning process and achieve high accuracy with fewer labeled 
 2. Select the `Active Learning Pipeline` template
 3. Click the pipeline variables icon [*X*] to enter the necessary IDs for each variable
 4. After all the nodes are set up with variables, connections, or values, click `Start Pipeline` 
+
+For more info on how to run the pipeline, see the [link](https://github.com/dataloop-ai-apps/pipeline-templates/tree/main/mlops/active_learning) for the Active Learning Pipeline.
 
 ---
 
