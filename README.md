@@ -19,7 +19,6 @@ Once you have the Active Learning Pipeline Template application installed, you c
 3. Click the pipeline variables icon [*X*] to enter the necessary IDs for each variable
 4. After all the nodes are set up with variables, connections, or values, click `Start Pipeline` 
 
-
 For more info on how to run the pipeline, see the [link](https://github.com/dataloop-ai-apps/pipeline-templates/tree/main/mlops/active_learning) for the Active Learning Pipeline.
 
 ---
