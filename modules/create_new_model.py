@@ -33,14 +33,17 @@ class ModelCreator(dl.BaseServiceRunner):
         print(f"validation subset: {validation_subset}")
         print(f"model config: {model_configuration}")
 
-        pipeline = context.pipeline
-        pipeline_variables_dict = {var.name: var for var in pipeline.variables}
+        try:
+            pipeline = context.pipeline
+            pipeline_variables_dict = {var.name: var for var in pipeline.variables}
+        except Exception:
+            pipeline_variables_dict = {"train_subset": train_subset, "validation_subset": validation_subset, "model_configuration": model_configuration}
 
         _model_configuration = base_model.configuration
         if isinstance(model_configuration, dict) and len(model_configuration) > 0:
             for config_name, config_val in model_configuration.items():
                 _model_configuration[config_name] = config_val
-            pipeline_variables_dict["model_configuration"].value = _model_configuration
+            pipeline_variables_dict["model_configuration"] = _model_configuration
 
         logger.info(f"Creating new model from {base_model.name}.")
 
@@ -61,15 +64,19 @@ class ModelCreator(dl.BaseServiceRunner):
 
         if train_subset is None or len(train_subset) == 0:
             # get the train subset from the base model
-            train_subset = base_model.metadata.get("system", {}).get("subsets", {}).get("train", {})
-            pipeline_variables_dict["train_subset"].value = train_subset
+            base_train_subset = base_model.metadata.get("system", {}).get("subsets", {}).get("train", {})
+            pipeline_variables_dict["train_subset"] = base_train_subset
 
         if validation_subset is None or len(validation_subset) == 0:
             # get the validation subset from the base model
-            validation_subset = base_model.metadata.get("system", {}).get("subsets", {}).get("validation", {})
-            pipeline_variables_dict["validation_subset"].value = validation_subset
+            base_validation_subset = base_model.metadata.get("system", {}).get("subsets", {}).get("validation", {})
+            pipeline_variables_dict["validation_subset"] = base_validation_subset
+
         # update back to pipeline variables
-        context.pipeline.variables = pipeline_variables_dict
+        try:
+            context.pipeline.variables = pipeline_variables_dict
+        except Exception:
+            pass
 
         train_filter = dl.Filters(custom_filter=train_subset)
         validation_filter = dl.Filters(custom_filter=validation_subset)
