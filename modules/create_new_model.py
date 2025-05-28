@@ -29,9 +29,10 @@ class ModelCreator(dl.BaseServiceRunner):
         :param context: IDs and other entities related to the item
         :return: new_model (dl.Model), a clone of the base model with the specified parameters.
         """
-        print(f"train subset: {train_subset}")
-        print(f"validation subset: {validation_subset}")
-        print(f"model config: {model_configuration}")
+        if base_model is None:
+            raise ValueError("Base model is required.")
+        if dataset is None:
+            raise ValueError("Dataset is required.")
 
         try:
             pipeline = context.pipeline
@@ -56,9 +57,12 @@ class ModelCreator(dl.BaseServiceRunner):
         while "{" in new_name:
             name_start, name_end = new_name.split("{", 1)
             executable_name, name_end = name_end.split("}", 1)
-            exec_var = eval(executable_name)
+            try:
+                exec_var = eval(executable_name) if executable_name else ""
+            except Exception:
+                logger.error(f"Error evaluating executable name: {executable_name}.")
+                exec_var = ""
             new_name = name_start + exec_var + name_end
-
         new_dataset = dataset if dataset else base_model.dataset
         new_project = new_dataset.project
 
