@@ -288,7 +288,7 @@
         "panelNames": ["dataSplit"],
         "runtime": {
           "podType": "regular-xs",
-          "runnerImage": "dataloopai/py3.10.node18",
+          "runnerImage": "docker.io/dataloopai/dtlpy-agent:cpu.py3.10.opencv",
           "numReplicas": 1,
           "concurrency": 10,
           "singleAgent": false,
