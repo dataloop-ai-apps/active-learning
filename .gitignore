@@ -349,3 +349,5 @@ Thumbs.db
 dataloop_scripts*
 pipeline_creation*
 automations*
+
+tests/*
