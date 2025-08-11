@@ -1,4 +1,8 @@
 {
+  "name": "create-new-model-e2e-test",
+  "attributes": {
+    "Category": "Pipeline"
+  },
   "dependencies": [
     {
       "name": "ml-compare-solution"
