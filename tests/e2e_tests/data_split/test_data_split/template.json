@@ -1,0 +1,226 @@
+{
+  "name": "data-split-e2e-test",
+  "attributes": {
+    "Category": "Pipeline"
+  },
+  "dependencies": [
+    {
+      "name": "ml-compare-solution"
+    }
+  ],
+  "components": {
+    "pipelineTemplates": [
+      {
+        "connections": [
+          {
+            "src": {
+              "nodeId": "data-preparation-node",
+              "portId": "prepared-item-output"
+            },
+            "tgt": {
+              "nodeId": "data-split-node",
+              "portId": "item-input-port"
+            },
+            "condition": "{}"
+          },
+          {
+            "src": {
+              "nodeId": "data-split-node",
+              "portId": "split-item-output"
+            },
+            "tgt": {
+              "nodeId": "validate-split-node",
+              "portId": "split-validation-input"
+            },
+            "condition": "{}"
+          }
+        ],
+        "startNodes": [
+          {
+            "nodeId": "data-preparation-node",
+            "type": "root",
+            "id": "start-data-split-test"
+          }
+        ],
+        "variables": [
+          {
+            "name": "dataset",
+            "type": "Dataset",
+            "description": "Dataset containing items to split"
+          },
+          {
+            "name": "split_groups",
+            "type": "Json",
+            "value": [
+              { "name": "train", "distribution": 70 },
+              { "name": "validation", "distribution": 20 },
+              { "name": "test", "distribution": 10 }
+            ],
+            "description": "Distribution groups for data splitting"
+          }
+        ],
+        "description": "End-to-end test for data splitting functionality",
+        "name": "Data Split Test",
+        "templateKind": "org",
+        "nodes": [
+          {
+            "id": "data-preparation-node",
+            "inputs": [
+              {
+                "portId": "dataset-input",
+                "nodeId": "dataset-input",
+                "type": "Dataset",
+                "name": "dataset",
+                "displayName": "Test Dataset",
+                "variableName": "dataset",
+                "io": "input"
+              }
+            ],
+            "outputs": [
+              {
+                "portId": "prepared-item-output",
+                "nodeId": "prepared-item-output",
+                "type": "Item",
+                "name": "test_item",
+                "displayName": "Test Item",
+                "io": "output"
+              }
+            ],
+            "name": "Prepare Test Item",
+            "type": "code",
+            "namespace": {
+              "functionName": "run",
+              "projectName": null,
+              "serviceName": "",
+              "moduleName": null,
+              "packageName": ""
+            },
+            "projectId": null,
+            "config": {
+              "package": {
+                "code": "import dtlpy as dl\nimport logging\n\nlogger = logging.getLogger('[DataPreparation]')\n\nclass ServiceRunner:\n    @staticmethod\n    def run(dataset: dl.Dataset):\n        \"\"\"\n        Prepare a test item from the dataset for splitting\n        \"\"\"\n        if dataset is None:\n            raise ValueError(\"Dataset is required\")\n            \n        # Get first item from dataset for testing\n        items = list(dataset.items.list().all())\n        if not items:\n            raise ValueError(\"Dataset contains no items\")\n            \n        test_item = items[0]\n        logger.info(f\"Selected test item: {test_item.name} (ID: {test_item.id})\")\n        \n        # Clear any existing split metadata to ensure clean test\n        if 'system' in test_item.metadata:\n            if 'tags' in test_item.metadata['system']:\n                # Remove split tags if they exist\n                tags_to_remove = ['train', 'validation', 'test']\n                for tag in tags_to_remove:\n                    if tag in test_item.metadata['system']['tags']:\n                        del test_item.metadata['system']['tags'][tag]\n                        \n                # Clean up empty tags dict\n                if not test_item.metadata['system']['tags']:\n                    del test_item.metadata['system']['tags']\n                    \n                # Clean up empty system dict\n                if not test_item.metadata['system']:\n                    del test_item.metadata['system']\n                    \n                test_item.update(True)\n                logger.info(\"Cleared existing split metadata from test item\")\n        \n        return test_item\n",
+                "name": "run",
+                "type": "code",
+                "codebase": {
+                  "type": "item"
+                }
+              }
+            },
+            "metadata": {
+              "position": {
+                "x": 100,
+                "y": 100,
+                "z": 0
+              },
+              "repeatable": true,
+              "componentGroupName": "preparation"
+            }
+          },
+          {
+            "id": "data-split-node",
+            "inputs": [
+              {
+                "portId": "item-input-port",
+                "nodeId": "item-input-port",
+                "type": "Item",
+                "name": "item",
+                "displayName": "Item to Split",
+                "io": "input"
+              }
+            ],
+            "outputs": [
+              {
+                "portId": "split-item-output",
+                "nodeId": "split-item-output",
+                "type": "Item",
+                "name": "split_item",
+                "displayName": "Split Item",
+                "io": "output"
+              }
+            ],
+            "name": "Data Split",
+            "type": "ml",
+            "namespace": {
+              "functionName": "data_split",
+              "projectName": null,
+              "serviceName": "active-learning-service",
+              "moduleName": "data_split",
+              "packageName": "active-learning-app"
+            },
+            "projectId": null,
+            "metadata": {
+              "position": {
+                "x": 400,
+                "y": 100,
+                "z": 0
+              },
+              "repeatable": true,
+              "componentGroupName": "active-learning",
+              "customNodeConfig": {
+                "groups": [
+                  { "name": "train", "distribution": 70 },
+                  { "name": "validation", "distribution": 20 },
+                  { "name": "test", "distribution": 10 }
+                ],
+                "itemMetadata": true
+              }
+            }
+          },
+          {
+            "id": "validate-split-node",
+            "inputs": [
+              {
+                "portId": "split-validation-input",
+                "nodeId": "split-validation-input",
+                "type": "Item",
+                "name": "split_item",
+                "displayName": "Split Item",
+                "io": "input"
+              }
+            ],
+            "outputs": [
+              {
+                "portId": "validated-split-output",
+                "nodeId": "validated-split-output",
+                "type": "Item",
+                "name": "validated_item",
+                "displayName": "Validated Split Item",
+                "io": "output"
+              }
+            ],
+            "name": "Validate Data Split",
+            "type": "code",
+            "namespace": {
+              "functionName": "run",
+              "projectName": null,
+              "serviceName": "",
+              "moduleName": null,
+              "packageName": ""
+            },
+            "projectId": null,
+            "config": {
+              "package": {
+                "code": "import dtlpy as dl\nimport logging\n\nlogger = logging.getLogger('[SplitValidator]')\n\nclass ServiceRunner:\n    @staticmethod\n    def run(split_item: dl.Item):\n        \"\"\"\n        Validate that the data split was applied correctly\n        \"\"\"\n        if split_item is None:\n            raise ValueError(\"Split item is None\")\n            \n        if not isinstance(split_item, dl.Item):\n            raise ValueError(f\"Expected dl.Item, got {type(split_item)}\")\n            \n        logger.info(f\"Validating split for item: {split_item.name} (ID: {split_item.id})\")\n        \n        # Check that item has system metadata with tags\n        if 'system' not in split_item.metadata:\n            raise ValueError(\"Item missing system metadata after split\")\n            \n        if 'tags' not in split_item.metadata['system']:\n            raise ValueError(\"Item missing tags in system metadata after split\")\n            \n        tags = split_item.metadata['system']['tags']\n        valid_split_tags = ['train', 'validation', 'test']\n        split_tags_found = [tag for tag in valid_split_tags if tag in tags and tags[tag] is True]\n        \n        if not split_tags_found:\n            raise ValueError(f\"Item missing valid split tags. Found tags: {list(tags.keys())}\")\n            \n        if len(split_tags_found) > 1:\n            raise ValueError(f\"Item has multiple split tags: {split_tags_found}\")\n            \n        assigned_split = split_tags_found[0]\n        logger.info(f\"Item correctly assigned to split: {assigned_split}\")\n        \n        # Check if model metadata was cleared from annotations (if any exist)\n        annotations = split_item.annotations.list()\n        if annotations:\n            for annotation in annotations:\n                if 'user' in annotation.metadata:\n                    if 'model' in annotation.metadata['user']:\n                        raise ValueError(\"Model metadata still present in annotation after split\")\n            logger.info(f\"Model metadata correctly cleared from {len(annotations)} annotations\")\n        else:\n            logger.info(\"No annotations found on item\")\n            \n        logger.info(\"Data split validation successful\")\n        return split_item\n",
+                "name": "run",
+                "type": "code",
+                "codebase": {
+                  "type": "item"
+                }
+              }
+            },
+            "metadata": {
+              "position": {
+                "x": 700,
+                "y": 100,
+                "z": 0
+              },
+              "repeatable": true,
+              "componentGroupName": "validation"
+            }
+          }
+        ],
+        "_id": "data-split-e2e-test"
+      }
+    ]
+  }
+}

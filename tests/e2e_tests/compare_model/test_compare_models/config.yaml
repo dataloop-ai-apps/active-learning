@@ -1,0 +1,53 @@
+# ordered list of dpks to publish and install
+dpks:
+    - name: active-learning
+      install_app: True
+
+# ordered list of datasets to create from local assets or to get from installed apps
+datasets:
+    - name: "V2 Plant Seedlings - Annotated"
+      type: remote
+      source_app: ml-compare-solution
+
+# ordered list of models to get from apps
+models:
+    - name: agri-classification-v1
+      deploy_model: False
+      source_app: ml-compare-solution
+    - name: agri-classification-v2
+      deploy_model: False
+      source_app: ml-compare-solution
+
+# list of pipeline variables to update with reference
+variables:
+    - name: previous_model
+      resource_type: models
+      resource_value:
+          resource_name: agri-classification-v1
+    - name: new_model
+      resource_type: models
+      resource_value:
+          resource_name: agri-classification-v2
+    - name: dataset
+      resource_type: datasets
+      resource_value:
+          resource_name: evaluation_dataset
+    - name: compare_config
+      resource_type: variables
+      resource_value:
+          value: {
+            "precision_recall": {
+              "iou_threshold": 0.5,
+              "wins": "any",
+              "checks": [
+                {
+                  "min_delta": 0.01,
+                  "maximize": true,
+                  "figure": "precision_recall",
+                  "legend": "overall",
+                  "x_index": 0
+                }
+              ],
+              "verbose": true
+            }
+          }

@@ -1,0 +1,227 @@
+{
+  "dependencies": [
+    {
+      "name": "ml-compare-solution"
+    }
+  ],
+  "components": {
+    "pipelineTemplates": [
+      {
+        "connections": [
+          {
+            "src": {
+              "nodeId": "a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6",
+              "portId": "input-port-dataset"
+            },
+            "tgt": {
+              "nodeId": "b2c3d4e5-f6g7-8h9i-0j1k-l2m3n4o5p6q7",
+              "portId": "output-port-new-model"
+            },
+            "condition": "{}"
+          }
+        ],
+        "startNodes": [
+          {
+            "nodeId": "a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6",
+            "type": "root",
+            "id": "start-create-model-test"
+          }
+        ],
+        "variables": [
+          {
+            "name": "base_model",
+            "type": "Model",
+            "description": "Base model to clone for training"
+          },
+          {
+            "name": "dataset",
+            "type": "Dataset",
+            "description": "Training dataset"
+          },
+          {
+            "name": "train_subset",
+            "type": "Json",
+            "value": {
+              "filter": {
+                "$and": [
+                  { "type": "file" },
+                  { "metadata.system.tags.train": true }
+                ]
+              }
+            },
+            "description": "Training subset filter"
+          },
+          {
+            "name": "validation_subset",
+            "type": "Json",
+            "value": {
+              "filter": {
+                "$and": [
+                  { "type": "file" },
+                  { "metadata.system.tags.validation": true }
+                ]
+              }
+            },
+            "description": "Validation subset filter"
+          },
+          {
+            "name": "model_configuration",
+            "type": "Json",
+            "value": { "epochs": 10, "batch_size": 32 },
+            "description": "Model training configuration"
+          }
+        ],
+        "description": "End-to-end test for create new model functionality",
+        "name": "Create New Model Test",
+        "templateKind": "org",
+        "nodes": [
+          {
+            "id": "a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6",
+            "inputs": [
+              {
+                "portId": "base-model-input",
+                "nodeId": "base-model-input",
+                "type": "Model",
+                "name": "base_model",
+                "displayName": "Base Model",
+                "variableName": "base_model",
+                "io": "input"
+              },
+              {
+                "portId": "dataset-input",
+                "nodeId": "dataset-input",
+                "type": "Dataset",
+                "name": "dataset",
+                "displayName": "Training Dataset",
+                "variableName": "dataset",
+                "io": "input"
+              },
+              {
+                "portId": "train-subset-input",
+                "nodeId": "train-subset-input",
+                "type": "Json",
+                "name": "train_subset",
+                "displayName": "Train Subset",
+                "variableName": "train_subset",
+                "io": "input"
+              },
+              {
+                "portId": "validation-subset-input",
+                "nodeId": "validation-subset-input",
+                "type": "Json",
+                "name": "validation_subset",
+                "displayName": "Validation Subset",
+                "variableName": "validation_subset",
+                "io": "input"
+              },
+              {
+                "portId": "model-config-input",
+                "nodeId": "model-config-input",
+                "type": "Json",
+                "name": "model_configuration",
+                "displayName": "Model Configuration",
+                "variableName": "model_configuration",
+                "io": "input"
+              }
+            ],
+            "outputs": [
+              {
+                "portId": "output-port-new-model",
+                "nodeId": "output-port-new-model",
+                "type": "Model",
+                "name": "new_model",
+                "displayName": "New Model",
+                "io": "output"
+              },
+              {
+                "portId": "output-port-base-model",
+                "nodeId": "output-port-base-model",
+                "type": "Model",
+                "name": "base_model_output",
+                "displayName": "Base Model Output",
+                "io": "output"
+              }
+            ],
+            "name": "Create New Model",
+            "type": "ml",
+            "namespace": {
+              "functionName": "create_new_model",
+              "projectName": null,
+              "serviceName": "active-learning-service",
+              "moduleName": "create_new_model",
+              "packageName": "active-learning-app"
+            },
+            "projectId": null,
+            "metadata": {
+              "position": {
+                "x": 100,
+                "y": 100,
+                "z": 0
+              },
+              "repeatable": true,
+              "componentGroupName": "active-learning",
+              "customNodeConfig": {
+                "modelName": "test_model_{datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}",
+                "itemMetadata": true
+              }
+            }
+          },
+          {
+            "id": "b2c3d4e5-f6g7-8h9i-0j1k-l2m3n4o5p6q7",
+            "inputs": [
+              {
+                "portId": "validation-input",
+                "nodeId": "validation-input",
+                "type": "Model",
+                "name": "new_model",
+                "displayName": "New Model",
+                "io": "input"
+              }
+            ],
+            "outputs": [
+              {
+                "portId": "validation-output",
+                "nodeId": "validation-output",
+                "type": "Model",
+                "name": "validated_model",
+                "displayName": "Validated Model",
+                "io": "output"
+              }
+            ],
+            "name": "Validate Model",
+            "type": "code",
+            "namespace": {
+              "functionName": "run",
+              "projectName": null,
+              "serviceName": "",
+              "moduleName": null,
+              "packageName": ""
+            },
+            "projectId": null,
+            "config": {
+              "package": {
+                "code": "import dtlpy as dl\nimport logging\n\nlogger = logging.getLogger('[ModelValidator]')\n\nclass ServiceRunner:\n    @staticmethod\n    def run(new_model: dl.Model):\n        \"\"\"\n        Validate that the new model was created successfully\n        \"\"\"\n        if new_model is None:\n            raise ValueError(\"New model is None\")\n        \n        if not isinstance(new_model, dl.Model):\n            raise ValueError(f\"Expected dl.Model, got {type(new_model)}\")\n            \n        if new_model.status not in ['created', 'trained']:\n            raise ValueError(f\"Model status is {new_model.status}, expected 'created' or 'trained'\")\n            \n        logger.info(f\"Model {new_model.name} (ID: {new_model.id}) validated successfully\")\n        logger.info(f\"Model status: {new_model.status}\")\n        logger.info(f\"Model configuration: {new_model.configuration}\")\n        \n        return new_model\n",
+                "name": "run",
+                "type": "code",
+                "codebase": {
+                  "type": "item"
+                }
+              }
+            },
+            "metadata": {
+              "position": {
+                "x": 400,
+                "y": 100,
+                "z": 0
+              },
+              "repeatable": true,
+              "componentGroupName": "validation"
+            }
+          }
+        ],
+        "preview": "create-new-model-test-preview",
+        "_id": "create-new-model-e2e-test"
+      }
+    ]
+  }
+}

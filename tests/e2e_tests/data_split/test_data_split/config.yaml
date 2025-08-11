@@ -1,0 +1,31 @@
+# ordered list of dpks to publish and install
+dpks:
+    - name: active-learning
+      install_app: True
+
+# ordered list of datasets to create from local assets or to get from installed apps
+datasets:
+    - name: "V2 Plant Seedlings - Unannotated"
+      type: remote
+      source_app: ml-compare-solution
+
+# ordered list of models to get from apps
+models:
+    - name: agri-classification-v1
+      deploy_model: False
+      source_app: ml-compare-solution
+
+# list of pipeline variables to update with reference
+variables:
+    - name: dataset
+      resource_type: datasets
+      resource_value:
+          resource_name: "V2 Plant Seedlings - Unannotated"
+    - name: split_groups
+      resource_type: variables
+      resource_value:
+          value: [
+            {"name": "train", "distribution": 70},
+            {"name": "validation", "distribution": 20},
+            {"name": "test", "distribution": 10}
+          ]

@@ -1,0 +1,261 @@
+{
+  "dependencies": [
+    {
+      "name": "ml-compare-solution"
+    }
+  ],
+  "components": {
+    "pipelineTemplates": [
+      {
+        "connections": [
+          {
+            "src": {
+              "nodeId": "compare-setup-node",
+              "portId": "setup-output-port"
+            },
+            "tgt": {
+              "nodeId": "compare-models-node",
+              "portId": "compare-input-port"
+            },
+            "condition": "{}"
+          },
+          {
+            "src": {
+              "nodeId": "compare-models-node",
+              "portId": "winning-model-output"
+            },
+            "tgt": {
+              "nodeId": "validate-comparison-node",
+              "portId": "validation-input-port"
+            },
+            "condition": "{}"
+          }
+        ],
+        "startNodes": [
+          {
+            "nodeId": "compare-setup-node",
+            "type": "root",
+            "id": "start-compare-models-test"
+          }
+        ],
+        "variables": [
+          {
+            "name": "previous_model",
+            "type": "Model",
+            "description": "Previous model for comparison"
+          },
+          {
+            "name": "new_model",
+            "type": "Model",
+            "description": "New model to compare against"
+          },
+          {
+            "name": "dataset",
+            "type": "Dataset",
+            "description": "Evaluation dataset for model comparison"
+          },
+          {
+            "name": "compare_config",
+            "type": "Json",
+            "value": {
+              "precision_recall": {
+                "iou_threshold": 0.5,
+                "wins": "any",
+                "checks": [
+                  {
+                    "min_delta": 0.01,
+                    "maximize": true,
+                    "figure": "precision_recall",
+                    "legend": "overall",
+                    "x_index": 0
+                  }
+                ],
+                "verbose": true
+              }
+            },
+            "description": "Model comparison configuration"
+          }
+        ],
+        "description": "End-to-end test for model comparison functionality",
+        "name": "Compare Models Test",
+        "templateKind": "org",
+        "nodes": [
+          {
+            "id": "compare-setup-node",
+            "inputs": [
+              {
+                "portId": "previous-model-input",
+                "nodeId": "previous-model-input",
+                "type": "Model",
+                "name": "previous_model",
+                "displayName": "Previous Model",
+                "variableName": "previous_model",
+                "io": "input"
+              },
+              {
+                "portId": "new-model-input",
+                "nodeId": "new-model-input",
+                "type": "Model",
+                "name": "new_model",
+                "displayName": "New Model",
+                "variableName": "new_model",
+                "io": "input"
+              },
+              {
+                "portId": "dataset-input",
+                "nodeId": "dataset-input",
+                "type": "Dataset",
+                "name": "dataset",
+                "displayName": "Evaluation Dataset",
+                "variableName": "dataset",
+                "io": "input"
+              }
+            ],
+            "outputs": [
+              {
+                "portId": "setup-output-port",
+                "nodeId": "setup-output-port",
+                "type": "Json",
+                "name": "setup_data",
+                "displayName": "Setup Data",
+                "io": "output"
+              }
+            ],
+            "name": "Setup Comparison",
+            "type": "code",
+            "namespace": {
+              "functionName": "run",
+              "projectName": null,
+              "serviceName": "",
+              "moduleName": null,
+              "packageName": ""
+            },
+            "projectId": null,
+            "config": {
+              "package": {
+                "code": "import dtlpy as dl\nimport logging\n\nlogger = logging.getLogger('[ComparisonSetup]')\n\nclass ServiceRunner:\n    @staticmethod\n    def run(previous_model: dl.Model, new_model: dl.Model, dataset: dl.Dataset):\n        \"\"\"\n        Setup and validate inputs for model comparison\n        \"\"\"\n        if previous_model is None:\n            raise ValueError(\"Previous model is required\")\n        if new_model is None:\n            raise ValueError(\"New model is required\")\n        if dataset is None:\n            raise ValueError(\"Dataset is required\")\n            \n        logger.info(f\"Setting up comparison between models:\")\n        logger.info(f\"  Previous: {previous_model.name} (ID: {previous_model.id})\")\n        logger.info(f\"  New: {new_model.name} (ID: {new_model.id})\")\n        logger.info(f\"  Dataset: {dataset.name} (ID: {dataset.id})\")\n        \n        setup_data = {\n            \"previous_model_id\": previous_model.id,\n            \"new_model_id\": new_model.id,\n            \"dataset_id\": dataset.id,\n            \"setup_complete\": True\n        }\n        \n        return setup_data\n",
+                "name": "run",
+                "type": "code",
+                "codebase": {
+                  "type": "item"
+                }
+              }
+            },
+            "metadata": {
+              "position": {
+                "x": 100,
+                "y": 100,
+                "z": 0
+              },
+              "repeatable": true,
+              "componentGroupName": "setup"
+            }
+          },
+          {
+            "id": "compare-models-node",
+            "inputs": [
+              {
+                "portId": "compare-input-port",
+                "nodeId": "compare-input-port",
+                "type": "Json",
+                "name": "setup_data",
+                "displayName": "Setup Data",
+                "io": "input"
+              }
+            ],
+            "outputs": [
+              {
+                "portId": "winning-model-output",
+                "nodeId": "winning-model-output",
+                "type": "Model",
+                "name": "winning_model",
+                "displayName": "Winning Model",
+                "io": "output"
+              }
+            ],
+            "name": "Compare Models",
+            "type": "ml",
+            "namespace": {
+              "functionName": "compare_models",
+              "projectName": null,
+              "serviceName": "active-learning-service",
+              "moduleName": "model_compare",
+              "packageName": "active-learning-app"
+            },
+            "projectId": null,
+            "metadata": {
+              "position": {
+                "x": 400,
+                "y": 100,
+                "z": 0
+              },
+              "repeatable": true,
+              "componentGroupName": "active-learning",
+              "variablePreviousModel": "previous_model",
+              "variableNewModel": "new_model",
+              "variableDataset": "dataset",
+              "variableCompareConfig": "compare_config",
+              "customNodeConfig": {
+                "itemMetadata": true
+              }
+            }
+          },
+          {
+            "id": "validate-comparison-node",
+            "inputs": [
+              {
+                "portId": "validation-input-port",
+                "nodeId": "validation-input-port",
+                "type": "Model",
+                "name": "winning_model",
+                "displayName": "Winning Model",
+                "io": "input"
+              }
+            ],
+            "outputs": [
+              {
+                "portId": "validation-output-port",
+                "nodeId": "validation-output-port",
+                "type": "Model",
+                "name": "validated_winner",
+                "displayName": "Validated Winner",
+                "io": "output"
+              }
+            ],
+            "name": "Validate Comparison Result",
+            "type": "code",
+            "namespace": {
+              "functionName": "run",
+              "projectName": null,
+              "serviceName": "",
+              "moduleName": null,
+              "packageName": ""
+            },
+            "projectId": null,
+            "config": {
+              "package": {
+                "code": "import dtlpy as dl\nimport logging\n\nlogger = logging.getLogger('[ComparisonValidator]')\n\nclass ServiceRunner:\n    @staticmethod\n    def run(winning_model: dl.Model):\n        \"\"\"\n        Validate that model comparison returned a valid winning model\n        \"\"\"\n        if winning_model is None:\n            raise ValueError(\"Winning model is None\")\n            \n        if not isinstance(winning_model, dl.Model):\n            raise ValueError(f\"Expected dl.Model, got {type(winning_model)}\")\n            \n        logger.info(f\"Comparison complete. Winning model: {winning_model.name} (ID: {winning_model.id})\")\n        \n        # Check if model has comparison metadata\n        if 'system' in winning_model.metadata:\n            tags = winning_model.metadata.get('system', {}).get('tags', {})\n            if 'update model' in tags or 'discard' in tags:\n                logger.info(f\"Model has comparison tags: {list(tags.keys())}\")\n            else:\n                logger.warning(\"Model does not have expected comparison tags\")\n        else:\n            logger.warning(\"Model does not have system metadata\")\n            \n        logger.info(\"Model comparison validation successful\")\n        return winning_model\n",
+                "name": "run",
+                "type": "code",
+                "codebase": {
+                  "type": "item"
+                }
+              }
+            },
+            "metadata": {
+              "position": {
+                "x": 700,
+                "y": 100,
+                "z": 0
+              },
+              "repeatable": true,
+              "componentGroupName": "validation"
+            }
+          }
+        ],
+        "preview": "compare-models-test-preview",
+        "_id": "compare-models-e2e-test"
+      }
+    ]
+  }
+}
