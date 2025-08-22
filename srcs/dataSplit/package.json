@@ -13,7 +13,7 @@
     "@dataloop-ai/icons": "^2.0.10",
     "@dataloop-ai/jssdk": "^0.0.44",
     "lodash": "^4.17.21",
-    "unplugin-vue-components": "^0.22.7",
+    "unplugin-vue-components": "^28.0.0",
     "uuid": "^9.0.0",
     "vite-project": "file:",
     "vue": "^3.2.37",
