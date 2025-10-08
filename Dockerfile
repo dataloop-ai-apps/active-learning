@@ -1,4 +1,4 @@
-FROM dataloopai/dtlpy-agent:cpu.py3.8.opencv4.7
+FROM hub.dataloop.ai/dtlpy-runner-images/cpu:python3.11_opencv
 
 RUN pip install --user \
     shapely \
