@@ -21,11 +21,11 @@ class DataSplitter(dl.BaseServiceRunner):
         :return:
         """
 
-        if item.metadata.get('system', dict()).get('tags', None) is not None:
+        try: 
             # If subset already exists, use the same subset name as action.
             action = list(item.metadata.get('system', dict()).get('tags', dict()).keys())[0]
             progress.update(action=action)
-        else:
+        except Exception as e:
             node = context.node
             groups = node.metadata['customNodeConfig']['groups']
             population = [group['name'] for group in groups]
