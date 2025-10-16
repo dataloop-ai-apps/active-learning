@@ -3,11 +3,11 @@
   "description": "Adds pipeline nodes for Active Learning. Active learning is a method in machine learning that selects more informative data points to label, prioritizing those\nthat would provide the most valuable information. By selectively labeling only informative examples, active learning\nhelps improve learning process efficiency to achieve high accuracy with fewer labeled samples.\n",
   "name": "active-learning",
   "scope": "public",
-  "version": "0.1.29",
+  "version": "0.1.30",
   "codebase": {
     "type": "git",
     "gitUrl": "https://github.com/dataloop-ai-apps/active-learning.git",
-    "gitTag": "0.1.29"
+    "gitTag": "0.1.30"
   },
   "metadata": {
     "system": {
