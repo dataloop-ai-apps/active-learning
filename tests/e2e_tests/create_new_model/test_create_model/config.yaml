@@ -13,7 +13,7 @@ datasets:
 models:
     - name: pretrained-resnet
       deploy_model: False
-      source_app: ml-compare-solution
+      source_app: resnet
 
 # list of pipeline variables to update with reference
 variables:

@@ -223,8 +223,7 @@
             }
           }
         ],
-        "preview": "create-new-model-test-preview",
-        "_id": "create-new-model-e2e-test"
+        "_id": null
       }
     ]
   }

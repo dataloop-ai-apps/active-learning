@@ -257,8 +257,7 @@
             }
           }
         ],
-        "preview": "compare-models-test-preview",
-        "_id": "compare-models-e2e-test"
+        "_id": null
       }
     ]
   }
