@@ -36,9 +36,16 @@ class DataSplitter(dl.BaseServiceRunner):
             # the annotation metadata is cleared from the model info
             annotations = item.annotations.list()
             for annotation in annotations:
+                update_annotation = False
                 if 'model' in annotation.metadata.get('user', dict()):
                     logger.info('removing model metadata from item annotations')
                     _ = annotation.metadata['user'].pop('model')
+                    update_annotation = True
+                if 'model' in annotation.metadata.get('system', dict()):
+                    logger.info('removing model metadata from item annotations')
+                    _ = annotation.metadata['system'].pop('model')
+                    update_annotation = True
+                if update_annotation is True:
                     annotation.update()
             add_item_metadata = context.node.metadata.get('customNodeConfig', {}).get('itemMetadata', False)
             if add_item_metadata:
