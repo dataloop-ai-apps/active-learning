@@ -46,7 +46,7 @@ class DataSplitter(dl.BaseServiceRunner):
                     _ = annotation.metadata['system'].pop('model')
                     update_annotation = True
                 if update_annotation is True:
-                    annotation.update()
+                    annotation.update(True)
             add_item_metadata = context.node.metadata.get('customNodeConfig', {}).get('itemMetadata', False)
             if add_item_metadata:
                 if 'system' not in item.metadata:
