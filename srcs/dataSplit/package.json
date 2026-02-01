@@ -9,8 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@dataloop-ai/components": "^0.17.55",
-    "@dataloop-ai/icons": "^2.0.10",
+    "@dataloop-ai/components": "^0.20.200",
+    "@dataloop-ai/icons": "^3.1.59",
     "@dataloop-ai/jssdk": "^0.0.44",
     "lodash": "^4.17.21",
     "unplugin-vue-components": "^0.22.7",
