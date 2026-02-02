@@ -10,6 +10,9 @@ import viteBasicSslPlugin from "@vitejs/plugin-basic-ssl"
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  build: {
+    outDir: 'panels/dataSplit'
+  },
   base: "",
   server: {
   host:"0.0.0.0",
