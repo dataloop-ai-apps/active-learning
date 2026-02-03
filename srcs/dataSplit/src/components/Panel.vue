@@ -255,6 +255,7 @@ watch(component, () => {
             :error-message="nodeNameErrorMessage"
             v-model="nodeName"
             title="Node Name"
+            red-asterisk
             required
             @blur="trimNodeName"
             :disabled="readonly"
@@ -362,7 +363,11 @@ watch(component, () => {
         <div id="item-metadata-section">
             <dl-typography size="12px" color="dl-color-darker">
                 Item Tags
-                <dl-icon icon="icon-dl-info" size="13px" />
+                <dl-icon
+                    icon="icon-dl-info"
+                    size="13px"
+                    color="dell-blue-500"
+                />
                 <dl-tooltip>
                     Add a tag to each item according to its assigned subset group. The tag will be added to a dictionary under item.metadata.system.tags in the following format: tags = {“subset name”: true} 
                 </dl-tooltip>
