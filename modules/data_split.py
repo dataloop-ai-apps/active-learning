@@ -25,7 +25,7 @@ class DataSplitter(dl.BaseServiceRunner):
             # If subset already exists, use the same subset name as action.
             action = list(item.metadata.get('system', dict()).get('tags', dict()).keys())[0]
             progress.update(action=action)
-        except Exception as e:
+        except (KeyError, IndexError, TypeError):
             node = context.node
             groups = node.metadata['customNodeConfig']['groups']
             population = [group['name'] for group in groups]

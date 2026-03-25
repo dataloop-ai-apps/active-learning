@@ -37,7 +37,7 @@ class ModelCreator(dl.BaseServiceRunner):
         try:
             pipeline = context.pipeline
             pipeline_variables_dict = {var.name: var for var in pipeline.variables}
-        except Exception:
+        except (AttributeError, KeyError, TypeError):
             pipeline_variables_dict = {"train_subset": train_subset, "validation_subset": validation_subset, "model_configuration": model_configuration}
 
         _model_configuration = base_model.configuration
@@ -51,18 +51,22 @@ class ModelCreator(dl.BaseServiceRunner):
         node = context.node
         try:
             input_name = node.metadata['customNodeConfig']['modelName']
-        except Exception:
+        except (KeyError, TypeError):
             input_name = f"{base_model.name}_{datetime.datetime.now().strftime('%Y_%m_%d-T%H_%M_%S')}"
         new_name = input_name
+        template_vars = {
+            "base_model.name": base_model.name,
+            "dataset.name": dataset.name if dataset else "",
+            "timestamp": datetime.datetime.now().strftime('%Y_%m_%d-T%H_%M_%S'),
+        }
         while "{" in new_name:
             name_start, name_end = new_name.split("{", 1)
-            executable_name, name_end = name_end.split("}", 1)
-            try:
-                exec_var = eval(executable_name) if executable_name else ""
-            except Exception:
-                logger.error(f"Error evaluating executable name: {executable_name}.")
-                exec_var = ""
-            new_name = name_start + exec_var + name_end
+            var_name, name_end = name_end.split("}", 1)
+            resolved = template_vars.get(var_name.strip(), None)
+            if resolved is None:
+                logger.warning(f"Unknown template variable '{var_name}', replacing with empty string.")
+                resolved = ""
+            new_name = name_start + str(resolved) + name_end
         new_dataset = dataset if dataset else base_model.dataset
         new_project = new_dataset.project
 
@@ -79,7 +83,7 @@ class ModelCreator(dl.BaseServiceRunner):
         # update back to pipeline variables
         try:
             context.pipeline.variables = pipeline_variables_dict
-        except Exception:
+        except (AttributeError, TypeError):
             pass
 
         train_filter = dl.Filters(custom_filter=train_subset)
