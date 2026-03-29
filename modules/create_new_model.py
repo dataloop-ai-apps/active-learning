@@ -54,19 +54,21 @@ class ModelCreator(dl.BaseServiceRunner):
         except (KeyError, TypeError):
             input_name = f"{base_model.name}_{datetime.datetime.now().strftime('%Y_%m_%d-T%H_%M_%S')}"
         new_name = input_name
-        template_vars = {
-            "base_model.name": base_model.name,
-            "dataset.name": dataset.name if dataset else "",
-            "timestamp": datetime.datetime.now().strftime('%Y_%m_%d-T%H_%M_%S'),
+        safe_namespace = {
+            "__builtins__": {},
+            "base_model": base_model,
+            "dataset": dataset,
+            "datetime": datetime,
         }
         while "{" in new_name:
             name_start, name_end = new_name.split("{", 1)
-            var_name, name_end = name_end.split("}", 1)
-            resolved = template_vars.get(var_name.strip(), None)
-            if resolved is None:
-                logger.warning(f"Unknown template variable '{var_name}', replacing with empty string.")
-                resolved = ""
-            new_name = name_start + str(resolved) + name_end
+            var_expr, name_end = name_end.split("}", 1)
+            try:
+                exec_var = str(eval(var_expr, safe_namespace)) if var_expr else ""
+            except Exception:
+                logger.warning(f"Could not resolve template variable '{var_expr}', replacing with empty string.")
+                exec_var = ""
+            new_name = name_start + exec_var + name_end
         new_dataset = dataset if dataset else base_model.dataset
         new_project = new_dataset.project
 
