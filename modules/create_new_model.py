@@ -37,7 +37,7 @@ class ModelCreator(dl.BaseServiceRunner):
         try:
             pipeline = context.pipeline
             pipeline_variables_dict = {var.name: var for var in pipeline.variables}
-        except Exception:
+        except (AttributeError, KeyError, TypeError):
             pipeline_variables_dict = {"train_subset": train_subset, "validation_subset": validation_subset, "model_configuration": model_configuration}
 
         _model_configuration = base_model.configuration
@@ -51,16 +51,22 @@ class ModelCreator(dl.BaseServiceRunner):
         node = context.node
         try:
             input_name = node.metadata['customNodeConfig']['modelName']
-        except Exception:
+        except (KeyError, TypeError, AttributeError):
             input_name = f"{base_model.name}_{datetime.datetime.now().strftime('%Y_%m_%d-T%H_%M_%S')}"
         new_name = input_name
+        safe_namespace = {
+            "__builtins__": {},
+            "base_model": base_model,
+            "dataset": dataset,
+            "datetime": datetime,
+        }
         while "{" in new_name:
             name_start, name_end = new_name.split("{", 1)
-            executable_name, name_end = name_end.split("}", 1)
+            var_expr, name_end = name_end.split("}", 1)
             try:
-                exec_var = eval(executable_name) if executable_name else ""
+                exec_var = str(eval(var_expr, safe_namespace)) if var_expr else ""
             except Exception:
-                logger.error(f"Error evaluating executable name: {executable_name}.")
+                logger.warning(f"Could not resolve template variable '{var_expr}', replacing with empty string.")
                 exec_var = ""
             new_name = name_start + exec_var + name_end
         new_dataset = dataset if dataset else base_model.dataset
@@ -79,7 +85,7 @@ class ModelCreator(dl.BaseServiceRunner):
         # update back to pipeline variables
         try:
             context.pipeline.variables = pipeline_variables_dict
-        except Exception:
+        except (AttributeError, TypeError):
             pass
 
         train_filter = dl.Filters(custom_filter=train_subset)
