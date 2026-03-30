@@ -51,7 +51,7 @@ class ModelCreator(dl.BaseServiceRunner):
         node = context.node
         try:
             input_name = node.metadata['customNodeConfig']['modelName']
-        except (KeyError, TypeError):
+        except (KeyError, TypeError, AttributeError):
             input_name = f"{base_model.name}_{datetime.datetime.now().strftime('%Y_%m_%d-T%H_%M_%S')}"
         new_name = input_name
         safe_namespace = {
