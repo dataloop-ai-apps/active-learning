@@ -23,10 +23,10 @@ The Data Split application enables developers to split data into multiple groups
 * Navigate to the repository - `cd data-split`
 * Publish the app -  `dlp app publish --project-name <PROJECT_NAME>`
 * Install - `dlp app install --dpk-id <DPK ID> --project-name <PROJECT_NAME>`
-Note: after installing the app, you can find it in the Dataloop Platform under the Apps tab.
+Note: after installing the app, you can find it in the DDOE Platform under the Apps tab.
 and you can find a new node in the pipeline editor under Data tag.
 
-## Application Usage in the Dataloop Platform
+## Application Usage in the DDOE Platform
 To use the Data Split in Pipeline, use the following steps:
 * Navigate to the Pipeline editor .
 * Drag and drop the Data Split node to the canvas.

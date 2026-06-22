@@ -25,8 +25,8 @@ For more info on how to run the pipeline, see the [link](https://github.com/data
 
 ## Introduction
 
-Dataloop pipelines provide a user-friendly interface for building, managing, and monitoring end-to-end machine learning
-workflows. This Active Learning app installs custom nodes into Dataloop that allow you to implement active learning pipelines in production.
+DDOE pipelines provide a user-friendly interface for building, managing, and monitoring end-to-end machine learning
+workflows. This Active Learning app installs custom nodes into DDOE that allow you to implement active learning pipelines in production.
 
 Custom nodes installed include:
 
