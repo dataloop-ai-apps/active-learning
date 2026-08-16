@@ -21,7 +21,7 @@
         "runtime": {
           "podType": "regular-xs",
           "concurrency": 1,
-          "runnerImage": "hub.dataloop.ai/dtlpy-runner-images/cpu:python3.14_full",
+          "runnerImage": "hub.dataloop.ai/dtlpy-runner-images/cpu:python3.12_full",
           "autoscaler": {
             "type": "rabbitmq",
             "minReplicas": 0,
@@ -35,7 +35,7 @@
         "runtime": {
           "podType": "regular-xs",
           "concurrency": 1,
-          "runnerImage": "hub.dataloop.ai/dtlpy-runner-images/cpu:python3.14_full",
+          "runnerImage": "hub.dataloop.ai/dtlpy-runner-images/cpu:python3.12_full",
           "autoscaler": {
             "type": "rabbitmq",
             "minReplicas": 0,
@@ -49,7 +49,7 @@
         "runtime": {
           "podType": "regular-xs",
           "concurrency": 1,
-          "runnerImage": "hub.dataloop.ai/dtlpy-runner-images/cpu:python3.14_full",
+          "runnerImage": "hub.dataloop.ai/dtlpy-runner-images/cpu:python3.12_full",
           "autoscaler": {
             "type": "rabbitmq",
             "minReplicas": 0,
@@ -288,7 +288,7 @@
         "panelNames": ["dataSplit"],
         "runtime": {
           "podType": "regular-xs",
-          "runnerImage": "hub.dataloop.ai/dtlpy-runner-images/cpu:python3.14_full",
+          "runnerImage": "hub.dataloop.ai/dtlpy-runner-images/cpu:python3.12_full",
           "numReplicas": 1,
           "concurrency": 10,
           "singleAgent": false,
