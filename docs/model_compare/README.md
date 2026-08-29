@@ -20,7 +20,7 @@ the newly labeled data, and the process repeats until the model achieves a satis
 
 The Compare Models node enables the user to directly compare two models based on user-defined criteria.
 
-## How to use on the Dataloop Platform
+## How to use on the DDOE Platform
 
 To use the Compare Models in Pipeline, use the following steps:
 
